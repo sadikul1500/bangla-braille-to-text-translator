@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/Fonts">
+        <file>Font/kalpurush.ttf</file>
+    </qresource>
+</RCC>

@@ -1,0 +1,11 @@
+debug/databundle.o
+debug/imagelabel.o
+debug/main.o
+debug/dialog.o
+debug/mainwindow.o
+debug/ulbrofdot.o
+debug/utilfileanddir.o
+debug/utilimageproc.o
+debug/moc_dialog.o
+debug/moc_imagelabel.o
+debug/moc_mainwindow.o

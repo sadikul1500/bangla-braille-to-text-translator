@@ -1,0 +1,11 @@
+release/databundle.o
+release/imagelabel.o
+release/main.o
+release/dialog.o
+release/mainwindow.o
+release/ulbrofdot.o
+release/utilfileanddir.o
+release/utilimageproc.o
+release/moc_dialog.o
+release/moc_imagelabel.o
+release/moc_mainwindow.o
