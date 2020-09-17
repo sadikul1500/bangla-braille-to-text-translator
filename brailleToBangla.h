@@ -3,6 +3,7 @@
 #include<iostream>
 #include<fstream>
 #include<unordered_map>
+#include<regex>
 #include "bangla.h"
 #include "banglaTextProcess.h"
 #include "brailleToText.h"
@@ -90,7 +91,12 @@ class BrailleToBangla: public BanglaTextProcess, public BrailleToText
 
         string postProcess(string text)
         {
-            return text;
+            string pattern = "([ঢ]*)";
+            string match = text.erase(text.size() - 1);
+            if (regex_match(match, regex(pattern)))
+                return "";
+            return text + " ";
+            //return text;
         }
 
 
