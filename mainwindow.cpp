@@ -6,7 +6,9 @@
 #include <QDebug>
 
 #include <QAbstractItemView>
+#include <QDialog>
 #include <QPainter>
+#include <QPrintDialog>
 #include <QPrinter>
 #include <QProgressDialog>
 #include <QSettings>
@@ -114,6 +116,7 @@ void MainWindow::createActions()
     actionSaveFiles = new QAction("Save Files");
         //actionSaveFiles->setShortcut(tr("Ctrl + S"));
     exportAsPdfForResult = new QAction("Export As PDF");
+    actionPrint = new QAction("Print");
 
 }
 
@@ -137,6 +140,7 @@ void MainWindow::initMemWidget()
         resultListView->addAction(actionSaveFiles);
         resultListView->addAction(actionRemoveFileForResult);
         resultListView->addAction(exportAsPdfForResult);
+        resultListView->addAction(actionPrint);
         imageLabel->setStyleSheet("background-color: rgb(128,200,200);");
         scrollArea->setStyleSheet("background-color: rgb(128,200,200);");
         openListView->setStyleSheet("background-color: rgb(180,200,210);");
@@ -180,6 +184,7 @@ void MainWindow::connectWidget()
     connect(actionQuit,&QAction::triggered,[=](){close();});
     connect(actionSaveFiles,SIGNAL(triggered()),this,SLOT(on_saveFiles()));
     connect(exportAsPdfForResult,SIGNAL(triggered()),this,SLOT(on_savePDFFiles()));
+    connect(actionPrint,SIGNAL(triggered()),this,SLOT(on_Print()));
 
 }
 
@@ -478,6 +483,47 @@ void MainWindow::on_savePDFFiles()
 //    painter.drawRect(header);
 //    painter.drawRect(body);
 //    painter.drawRect(footer);
+    QImage iitLogo(":/logo/logo/iitLogo.png");
+    QImage ictLogo(":/logo/logo/ictLogo.png");
+    painter.begin(&printer);
+    QFontDatabase::addApplicationFont(":/Fonts/Font/kalpurush.ttf");
+    QFont font = QFont("Kalpurush", 20, 10);
+    painter.setFont(font);
+    for(int i=startIdx;i<=endIdx;i++){
+        painter.drawImage(QRect(0,0,120,80),iitLogo);
+        painter.drawImage(QRect(printer.width()-125,0,120,80),ictLogo);
+        painter.drawText(body,Qt::AlignCenter,_banglaText.at(i));
+        painter.drawText(footer,Qt::AlignHCenter,QString::number(i-startIdx+1));
+        if(i!=endIdx) printer.newPage();
+    }
+    painter.end();
+    resultListView->setCurrentIndex(QModelIndex());
+    isSaving = false;
+}
+
+void MainWindow::on_Print()
+{
+    isSaving = true;
+    QModelIndexList midList =  resultListView->selectedIndexes();
+    if(midList.empty()) {isSaving = false; return;}
+    //------------------------------------------
+    QPrinter printer;
+    printer.setPaperSize(QPrinter::A4);
+    int startIdx= midList.at(0).row();
+    int endIdx = startIdx+midList.count()-1;
+//    qDebug()<<startIdx<<" "<<endIdx<<endl;
+    QPrintDialog printDialog(&printer,0);
+    if(printDialog.exec()!=QDialog::Accepted) return;
+    QPainter painter;
+
+    int headerHeight = 100;
+    int footerHeight = 40;
+    int spacing = 20;
+    int bodyHeight = printer.height()-(headerHeight+footerHeight+2*spacing);
+    int indent = 30;
+    QRect header(0,0,printer.width(),headerHeight);
+    QRect body(indent,headerHeight+spacing,printer.width()-indent,bodyHeight);
+    QRect footer(0,printer.height()-footerHeight,printer.width(),footerHeight);
     QImage iitLogo(":/logo/logo/iitLogo.png");
     QImage ictLogo(":/logo/logo/ictLogo.png");
     painter.begin(&printer);

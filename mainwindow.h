@@ -49,6 +49,7 @@ private slots:
     void on_saveFiles();
     void on_saveBinFiles();
     void on_savePDFFiles();
+    void on_Print();
 
 protected:
  void closeEvent(QCloseEvent *event);
@@ -100,7 +101,7 @@ public:
     QAction *actionContactUs;
     // --------------action for context menu------------
     QAction *actionselectAllForOpen,*actionselectAllForResult,*actionRemoveFileForResult,*actionSaveFiles;
-    QAction *exportAsPdfForResult;
+    QAction *exportAsPdfForResult,*actionPrint;
 
 };
 
