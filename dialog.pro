@@ -1,4 +1,5 @@
 QT       += core gui
+QT += printsupport
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -15,14 +16,14 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 TARGET = Application
-INCLUDEPATH += C:\OpenCV\opencv\build\include
+INCLUDEPATH +=  C:\opencv\Release\install\include
 
-LIBS += C:\OpenCV\opencv\Release\bin\libopencv_core430.dll
-LIBS += C:\OpenCV\opencv\Release\bin\libopencv_highgui430.dll
-LIBS += C:\OpenCV\opencv\Release\bin\libopencv_imgcodecs430.dll
-LIBS += C:\OpenCV\opencv\Release\bin\libopencv_imgproc430.dll
-LIBS += C:\OpenCV\opencv\Release\bin\libopencv_calib3d430.dll
-LIBS += C:\OpenCV\opencv\Release\bin\libopencv_objdetect430.dll
+LIBS += C:\opencv\Release\bin\libopencv_core430.dll
+LIBS += C:\opencv\Release\bin\libopencv_highgui430.dll
+LIBS += C:\opencv\Release\bin\libopencv_imgcodecs430.dll
+LIBS += C:\opencv\Release\bin\libopencv_imgproc430.dll
+LIBS += C:\opencv\Release\bin\libopencv_calib3d430.dll
+LIBS += C:\opencv\Release\bin\libopencv_objdetect430.dll
 
 
 SOURCES += \

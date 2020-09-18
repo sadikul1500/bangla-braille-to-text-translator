@@ -48,6 +48,7 @@ private slots:
     void on_addFiles();
     void on_saveFiles();
     void on_saveBinFiles();
+    void on_savePDFFiles();
 
 protected:
  void closeEvent(QCloseEvent *event);
@@ -99,6 +100,7 @@ public:
     QAction *actionContactUs;
     // --------------action for context menu------------
     QAction *actionselectAllForOpen,*actionselectAllForResult,*actionRemoveFileForResult,*actionSaveFiles;
+    QAction *exportAsPdfForResult;
 
 };
 
