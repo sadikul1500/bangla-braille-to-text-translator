@@ -75,9 +75,8 @@ public:
     progressWidget progressWdgt;
     // QPushButton
     QPushButton *convrt,*convrtAll;
-    //QPushButton *//textBtn;
-    //QPushButton *//imageBtn;
-    //QPushButton *//removeBtn;
+    // QLabel
+    QLabel *brailleTextLabel,*brailleImageLabel;
     // ------memberVariable-----------
     QStringList m_openFileList,m_resultFileList,nameList;
     QList<QString> _banglaText,_binText;

@@ -8,6 +8,7 @@
 #include <QAbstractItemView>
 #include <QDialog>
 #include <QPainter>
+#include <QPixmap>
 #include <QPrintDialog>
 #include <QPrinter>
 #include <QProgressDialog>
@@ -156,6 +157,12 @@ void MainWindow::initMemWidget()
     convrtAll->setSizePolicy(QSizePolicy::Maximum,QSizePolicy::Maximum);
     convrt->setStyleSheet("background-color: rgb(100,150,100);");
     convrtAll->setStyleSheet("background-color: rgb(100,200,100);");
+
+    // QLable
+    brailleImageLabel = new QLabel("<p style=\"color:red;\"><i>Image Files</i></p>");
+    brailleImageLabel->setStyleSheet("background-color: rgb(118,210,110);");
+    brailleTextLabel = new QLabel("<p style=\"color:red;\"><i>Text Files</i></p>");
+    brailleTextLabel->setStyleSheet("background-color: rgb(118,210,110);");
 }
 
 void MainWindow::connectWidget()
@@ -197,7 +204,13 @@ void MainWindow::layoutWidget()
                  convrtLay->addWidget(convrt);
                  convrtLay->addWidget(convrtAll);
                  convrtLay->addSpacerItem(new QSpacerItem(1,1,QSizePolicy::Expanding,QSizePolicy::Fixed));
+    QLabel *iitLogoLabel = new QLabel();
+            iitLogoLabel->setPixmap(QPixmap::fromImage(QImage(":/logo/logo/iitLogo.png")));
+            QLabel *ictLogoLabel = new QLabel();
+                    ictLogoLabel->setPixmap(QPixmap::fromImage(QImage(":/logo/logo/ictLogo.png")));
     QVBoxLayout *leftLay = new QVBoxLayout;
+                 leftLay->addWidget(iitLogoLabel);
+                 leftLay->addWidget(brailleImageLabel);
                  leftLay->addWidget(openListView);
                  leftLay->addLayout(convrtLay);
 
@@ -212,11 +225,16 @@ void MainWindow::layoutWidget()
                  middleLay->addWidget(scrollArea);
                  //middleLay->addLayout(textImageBtnLay);
     //--------------------right---------------
+    QVBoxLayout *rightLay = new QVBoxLayout;
+                rightLay->addWidget(ictLogoLabel);
+                rightLay->addWidget(brailleTextLabel);
+                rightLay->addWidget(resultListView);
     //--------------------upper---------------
     QHBoxLayout *upperLay = new QHBoxLayout;
                  upperLay->addLayout(leftLay,1);
                  upperLay->addLayout(middleLay,7);
-                 upperLay->addWidget(resultListView,1);
+                 //upperLay->addWidget(resultListView,1);
+                 upperLay->addLayout(rightLay,1);
 
     // ---------------belowLay---------------------
 
