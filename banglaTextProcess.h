@@ -115,7 +115,7 @@ class BanglaTextProcess
                     return letters[*i];
             }
 
-            else if(bangla.getOperator().find(letters[*i]+letters[*i+1]) != bangla.getOperator().end() && *i+1 < *length)
+            else if(*i+1 < *length && bangla.getOperator().find(letters[*i]+letters[*i+1]) != bangla.getOperator().end())
             {
                 *i++;
                 return bangla.getOperator()[letters[*i-1] + letters[*i+1-1]];
