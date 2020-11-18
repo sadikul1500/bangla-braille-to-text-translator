@@ -451,16 +451,19 @@ QImage UtilImageProc::mainImageToBinImage(QString fileName)
     //return QImage(imageFile);
     string file = fileName.toStdString(); //if you need std c++ string
 
-    Mat image, gray, blur, blackWhite;
+    Mat image, gray, blur, blackWhite, erosion, dilation;
 
     image = imread(file, IMREAD_COLOR);
     cvtColor(image, gray, COLOR_BGR2GRAY);
     GaussianBlur(gray, blur, Size(5, 5), 0, 0);
     threshold(blur, blackWhite, 0, 255, THRESH_BINARY | THRESH_OTSU);
+    
+    erode(blackWhite, erosion, getStructuringElement(MORPH_RECT, Size(5, 5)));
+    dilate(erosion, dilation, getStructuringElement(MORPH_RECT, Size(5, 5)));
 
     string out = "out_bin.png";
 
-    imwrite(out, blackWhite);
+    imwrite(out, dilation);
     //QImage imgOut= QImage((uchar*) blackWhite.data, blackWhite.cols, blackWhite.rows, blackWhite.step, QImage::Format_Grayscale8);
     //cout<<endl<<blackWhite<<endl;
     //string outFile = "out_" + file;
