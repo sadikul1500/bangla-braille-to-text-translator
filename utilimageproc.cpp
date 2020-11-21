@@ -454,10 +454,13 @@ QImage UtilImageProc::mainImageToBinImage(QString fileName)
     Mat image, gray, blur, blackWhite, erosion, dilation;
 
     image = imread(file, IMREAD_COLOR);
+    Rect crop_region(25, 100, image.cols-30, image.rows-130);
+    image = image(crop_region);
+    
     cvtColor(image, gray, COLOR_BGR2GRAY);
     GaussianBlur(gray, blur, Size(5, 5), 0, 0);
     //threshold(blur, blackWhite, 0, 255, THRESH_BINARY | THRESH_OTSU);
-    adaptiveThreshold(blur, blackWhite, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY, 11, 2);
+    adaptiveThreshold(blur, blackWhite, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY, 11, 5);
     erode(blackWhite, erosion, getStructuringElement(MORPH_RECT, Size(5, 5)));
     dilate(erosion, dilation, getStructuringElement(MORPH_RECT, Size(5, 5)));
 
