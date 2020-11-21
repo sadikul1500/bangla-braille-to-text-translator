@@ -456,8 +456,8 @@ QImage UtilImageProc::mainImageToBinImage(QString fileName)
     image = imread(file, IMREAD_COLOR);
     cvtColor(image, gray, COLOR_BGR2GRAY);
     GaussianBlur(gray, blur, Size(5, 5), 0, 0);
-    threshold(blur, blackWhite, 0, 255, THRESH_BINARY | THRESH_OTSU);
-    
+    //threshold(blur, blackWhite, 0, 255, THRESH_BINARY | THRESH_OTSU);
+    adaptiveThreshold(blur, blackWhite, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY, 11, 2);
     erode(blackWhite, erosion, getStructuringElement(MORPH_RECT, Size(5, 5)));
     dilate(erosion, dilation, getStructuringElement(MORPH_RECT, Size(5, 5)));
 
