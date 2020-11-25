@@ -1,5 +1,5 @@
-#ifndef english_H
-#define english_H
+#ifndef ENGLISH_H
+#define ENGLISH_H
 #include<iostream>
 #include<unordered_map>
 #include "commonSymbols.h"
