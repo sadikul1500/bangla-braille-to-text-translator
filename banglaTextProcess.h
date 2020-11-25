@@ -1,9 +1,10 @@
-﻿#ifndef BANGLATEXTPROCESS_H
-#define BANGLATEXTPROCESS_H
+#ifndef BanglaTextProcess_H
+#define BanglaTextProcess_H
 #include<iostream>
 #include<unordered_map>
 #include "double_map.h"
 #include "bangla.h"
+#include "english.h"
 
 using namespace std;
 
@@ -11,8 +12,10 @@ class BanglaTextProcess
 {
     private:
         Bangla bangla;
+        English english;
         string numeral_sign = "001111";
         string operator_sign = "000011";
+        string english_sign = "000001";
 
     public:
         BanglaTextProcess()
@@ -27,7 +30,7 @@ class BanglaTextProcess
             {
                 if(letters[i] == element.first)
                 {
-                    //cout<<"dd "<<letters[i]<<endl;
+                   // cout<<"dd "<<letters[i]<<endl;
                     return element.second;
                 }
             }
@@ -42,11 +45,13 @@ class BanglaTextProcess
             {
                 *i += 2;
                 //cout<<bangla.getHosonto().begin()->second<<" "<<bangla.getHosonto().begin()->first<<endl;
+                //cout<<2222<<endl;
                 return dd[letters[*i+1-2]] + bangla.getHosonto()["001011"] + dd[letters[*i+2-2]];
             }
 
             else if(letters[*i] == "000101" && *i+4 < length)
             {
+                //cout<<4444444444<<endl;
                 string joint = dd[letters[*i+1]] + dd[letters[*i+2]] + dd[letters[*i+3]] + dd[letters[*i+4]];
                 if(bangla.getFourLetters().find(joint) != bangla.getFourLetters().end())
                 {
@@ -65,13 +70,68 @@ class BanglaTextProcess
 
             if(letters[*i] == "000101" && *i+3 < length)
             {
+                //cout<<2333333<<endl;
                 *i += 3;
                 return dd[letters[*i + 1-3]] + bangla.getHosonto()["001011"] + dd[letters[*i + 2-3]] + bangla.getHosonto()["001011"] +
                        dd[letters[*i + 3-3]];
 
             }
-
+            //cout<<"nn0ooo"<<endl;
             return "";
+
+        }
+
+        string englishProcess(vector<string> letters, int *bracket_count, int *i, int* length)
+        {
+            //cout<<"okkk0"<<endl;
+            //cout<<*i+1<<endl;
+            //cout<<*length<<endl;
+            if(english.getOperator().find(letters[*i]) != english.getOperator().end())
+            {
+                 //cout<<"okkk1"<<endl;
+
+                 if(letters[*i] == "011011" and *bracket_count == 0)
+                 {
+                     //cout<<"first"<<endl;
+                     *bracket_count += 1;
+                     return "(";
+                 }
+
+                 else if(letters[*i] == "011011" and *bracket_count == 1)
+                 {
+                     //cout<<"second"<<endl;
+                     *bracket_count = 0;
+                     return ")";
+                 }
+
+                 else
+                 {
+                     //cout<<"okkk2"<<endl;
+                     return english.getOperator()[letters[*i]];
+                 }
+            }
+
+
+            else if(english.getEnglishAlphabets().find(letters[*i]) != english.getEnglishAlphabets().end())
+            {
+                //cout<<"okkk4"<<endl;
+                return english.getEnglishAlphabets()[letters[*i]];
+            }
+
+            else if(english.getPunctuation().find(letters[*i]) != english.getPunctuation().end())
+            {
+                //cout<<"okkk4"<<endl;
+                return english.getPunctuation()[letters[*i]];
+            }
+
+            else if(*i+1 < *length && english.getOperator().find(letters[*i]+letters[*i+1]) != english.getOperator().end())
+            {
+                //cout<<"okkk3"<<endl;
+                *i++;
+                return english.getOperator()[letters[*i-1] + letters[*i+1-1]];
+            }
+
+            else return "";
 
         }
 
@@ -122,7 +182,11 @@ class BanglaTextProcess
             }
 
 
-            else return "";
+            else
+			{
+                //cout<<"digit not found\n";
+				return letters[*i];
+			}
         }
 
 
@@ -130,9 +194,10 @@ class BanglaTextProcess
         {
             int length = letters.size();//sizeof(letters) / sizeof(*letters);
             bool num = false;
+            bool eng = false;
             int i = 0, bracket_count = 0;
             vector<string> text;
-            unordered_map<string, string> hos = bangla.getHosonto();
+            //unordered_map<string, string> hos = bangla.getHosonto();
             unordered_map<string, string> dd = bangla.getBanglaDictionary();
             unordered_map<string, string> characters = bangla.getAllAlphabets();
 
@@ -143,6 +208,12 @@ class BanglaTextProcess
                 {
                     //cout<<"number process"<<endl;
                     text.push_back(numberProcess(letters, &bracket_count, &i, &length));
+                }
+
+                else if(eng)
+                {
+                    //cout<<"english!!!"<<endl;
+                    text.push_back(englishProcess(letters, &bracket_count, &i, &length));
                 }
 
                 else
@@ -160,10 +231,24 @@ class BanglaTextProcess
                         num = true;
                     }
 
+                    else if(i == 0 && letters[i] == english_sign)
+                    {
+                        //cout<<"english sign found in bangla"<<endl;
+                        eng = true;
+                    }
+
+                    else if(letters[i] == english_sign && i-1 >= 0 && bangla.getPunctuation().find(letters[i-1]) != bangla.getPunctuation().end()
+                            )
+                    {
+                        //cout<<"english sign found"<<endl;
+                        eng = true;
+                    }
+
                     else
                     {
                         if(i + 1 < length && bangla.getTwelveDots().find(letters[i] + letters[i + 1])!= bangla.getTwelveDots().end())
                         {
+                            //cout<<"twelve dots"<<endl;
                             text.push_back(bangla.getTwelveDots()[letters[i] + letters[i + 1]]);
                             i += 1;
                         }
@@ -179,6 +264,7 @@ class BanglaTextProcess
 
                         else if(i == 0 && letters[i] == operator_sign && i+1 < length)
                         {
+                            //cout<<"operator sign"<<endl;
                             text.push_back(bangla.getMathOperator()[letters[i+1]]);
                             i += 1;
                         }
@@ -197,6 +283,7 @@ class BanglaTextProcess
 
                         }
                         num = false;
+                        eng = false;
 
                     }
                 }
@@ -206,4 +293,4 @@ class BanglaTextProcess
             return text;
         }
 };
-#endif // BANGLATEXTPROCESS_H
+#endif // BanglaTextProcess
