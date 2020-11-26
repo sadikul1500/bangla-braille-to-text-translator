@@ -16,6 +16,7 @@ class BanglaTextProcess
         string numeral_sign = "001111";
         string operator_sign = "000011";
         string english_sign = "000001";
+        int bracket_count = 0;
 
     public:
         BanglaTextProcess()
@@ -195,7 +196,7 @@ class BanglaTextProcess
             int length = letters.size();//sizeof(letters) / sizeof(*letters);
             bool num = false;
             bool eng = false;
-            int i = 0, bracket_count = 0;
+            int i = 0;
             vector<string> text;
             //unordered_map<string, string> hos = bangla.getHosonto();
             unordered_map<string, string> dd = bangla.getBanglaDictionary();
