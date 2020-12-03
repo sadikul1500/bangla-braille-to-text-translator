@@ -128,7 +128,7 @@ class BanglaTextProcess
             else if(*i+1 < *length && english.getOperator().find(letters[*i]+letters[*i+1]) != english.getOperator().end())
             {
                 //cout<<"okkk3"<<endl;
-                *i++;
+                *i += 1;
                 return english.getOperator()[letters[*i-1] + letters[*i+1-1]];
             }
 
@@ -166,7 +166,7 @@ class BanglaTextProcess
 
             else if(letters[*i] == operator_sign && *i+1 < *length)
             {
-                *i++;
+                *i += 1;
                 if(bangla.getMathOperator().find(letters[*i]) != bangla.getMathOperator().end())
                 {
                     return bangla.getMathOperator()[letters[*i]];
@@ -178,7 +178,7 @@ class BanglaTextProcess
 
             else if(*i+1 < *length && bangla.getOperator().find(letters[*i]+letters[*i+1]) != bangla.getOperator().end())
             {
-                *i++;
+                *i += 1;
                 return bangla.getOperator()[letters[*i-1] + letters[*i+1-1]];
             }
 
