@@ -1,4 +1,4 @@
-﻿#ifndef COMMONSYMBOLS_H
+#ifndef COMMONSYMBOLS_H
 #define COMMONSYMBOLS_H
 #include <unordered_map>
 #include<iostream>
@@ -43,7 +43,7 @@ class CommonSymbols
         unordered_map<string, string>
         twelveDots = {
         {"000011011011", "="}, {"001010001010", "*"}, {"000001011011", "["}, {"000001011001", "\‘"}, {"001011001000", "\’"},
-        {"011011001000", "]"}, {"000010111010", "ঋ"}, {"010000011110", "ৎ"}
+        {"011011001000", "]"}, {"000010111010", "ঋ"}, {"010000011110", "ৎ"}, {"000010011110", "ৎ"}
         };
 
         unordered_map<string, string>
