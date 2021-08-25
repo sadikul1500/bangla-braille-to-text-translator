@@ -25,6 +25,8 @@ void progressWidget::setMaximum(int numberOfLine, int numberOfFile)
     individualProgressBar->setMaximum(numberOfLine);
     allProgressBar->setMaximum(numberOfFile*numberOfLine);
     this->numberOfFiles = numberOfFile;
+    if(numberOfFile==1) allProgressBar->setVisible(false);
+    else allProgressBar->setVisible(true);
     this->numberOfLines = numberOfLine;
     setValue(1,0);
     show();
