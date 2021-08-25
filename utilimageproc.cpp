@@ -1,4 +1,4 @@
-#include "ulbrofdotv4.h"
+﻿#include "ulbrofdotv4.h"
 #include "utilimageproc.h"
 #include <QApplication>
 
@@ -100,6 +100,7 @@ DataBundle UtilImageProc::markDotByPoint(QImage image, QPoint point,bool mark) /
     int y = (list[0]+list[2])/2;
 
     if((list[3]-list[1]) > 2*_maxDotWidth || (list[2]-list[0]) > 2*_maxDotWidth) mark = false; // because mark intersect others!!
+    if((list[3]-list[1]) < _minDotWidth && (list[2]-list[0]) < _minDotWidth) mark = false;
     if(_isDebug && mark) markByULBR(originalImg,qRgb(128,128,128),list);
     if(shouldPrint) qDebug()<<"dot size: "<<QPoint((list[3]-list[1]),(list[2]-list[0]))<<"minMax: "<<QPoint(_minDotWidth,_maxDotWidth)<<endl;
 
@@ -107,6 +108,7 @@ DataBundle UtilImageProc::markDotByPoint(QImage image, QPoint point,bool mark) /
                dataBundle.dotCenter = QPoint(x,y);
                if((list[3]-list[1]) < _minDotWidth && (list[2]-list[0]) < _minDotWidth){
                     dataBundle.dotCenter = point;
+                    dataBundle.isValidDot = false;
                     dataBundle.shouldInCharIdentification = false;
                    if(shouldPrint) qDebug()<<"very small Dot: "<<QPoint(_minDotWidth,_minDotWidth)<<endl;
                }
@@ -172,7 +174,10 @@ DataBundle UtilImageProc::searchForBlackDotAndMark(const QImage &image,QPoint po
 
         if(dataBundle.image.pixel(pt.x(),pt.y())==qRgb(0,0,0))
         {
-            return markDotByPoint(dataBundle.image,QPoint(pt.x(),pt.y()),mark);
+//            return markDotByPoint(dataBundle.image,QPoint(pt.x(),pt.y()),mark);
+            dataBundle =  markDotByPoint(dataBundle.image,QPoint(pt.x(),pt.y()),mark);
+            if(!dataBundle.isValidDot) continue;
+            else return dataBundle;
              // return valid dot with other state(is large,is very large)
         }
         else if(_isDebug && mark) dataBundle.image.setPixel(pt.x(),pt.y(),qRgb(128,128,128));
@@ -206,15 +211,20 @@ DataBundle UtilImageProc::getBrailleChPosLeft(QImage image, QPoint point) //thin
          //shouldInCharIdentification = shouldInCharIdentification && dataBundle.shouldInCharIdentification; // if anyone is middle size
          if(dataBundle.isValidDot) // means dot exist and grether than minimum requirement
          {
-             tempPoint = dataBundle.dotCenter;
+             //tempPoint = dataBundle.dotCenter;
              dotCount++;
              ch.append("1");
          }
          else   //dot doesnt exist or exist but lower than minimum requirement and it is not marked by 128,128,128
             ch.append("0");
          image = dataBundle.image; // save modified image
-         totalPoint.setX(totalPoint.x()+tempPoint.x());
-         totalPoint.setY(totalPoint.y()+tempPoint.y());
+//         totalPoint.setX(totalPoint.x()+tempPoint.x());
+//         totalPoint.setY(totalPoint.y()+tempPoint.y());
+         // editing
+         totalPoint.setX(totalPoint.x()+dataBundle.dotCenter.x());
+         totalPoint.setY(totalPoint.y()+dataBundle.dotCenter.y());
+
+         // end
          tempPoint.setY(tempPoint.y()+_distBetDot.y());
 
          if(i==3)
@@ -304,6 +314,21 @@ DataBundle UtilImageProc::findCenter(const QImage &image, QPoint cntrBlckDot) //
      return dataBundle1.numberOfDotInCh>dataBundle2.numberOfDotInCh ? dataBundle1 : dataBundle2;
 }
 
+bool UtilImageProc::hasEnoughDot(QImage &image, int row)
+{
+    int count = 0;
+    for(int i=0;i<image.width();i+=3)
+        if(image.pixel(i,row-3)==qRgb(0,0,0)
+                || image.pixel(i,row)==qRgb(0,0,0)
+                || image.pixel(i,row+3)==qRgb(0,0,0)) {
+            count++;
+            if(count==3) return true;
+            i+=20;
+        }
+        //else image.setPixel(i,row,qRgb(128,128,128));
+    return false;
+}
+
 DataBundle UtilImageProc::extractChar(QImage &image, QPoint blackPix) // return nothing by ref by in case very large dot
 {   // this function only used by line identification purpose
     if(!(image.pixel(blackPix.x(),blackPix.y())==qRgb(0,0,0))){
@@ -356,16 +381,21 @@ DataBundle UtilImageProc::findChar(QImage image, QPoint startPt)
         {
             if(image.pixel(i,j)==qRgb(0,0,0))
             {
-
                 dataBundle = extractChar(image,QPoint(i,j));
                 if(dataBundle.isValidDot){
-
-                    return dataBundle;
+                    ULBRofDotV4 ulbrObjct(image);
+                    QList<int> list = ulbrObjct.findULBR(i,j);
+                    if(hasEnoughDot(image,(list[0]+list[2])/2)) // go through middle
+                        return dataBundle;
+                    else{
+                        i=col; //continue
+                    }
                 }
-                else i+=15; //continue
+                else i+=20; //continue
 
             }
-            else if(_isDebug)  image.setPixel(i,j,qRgb(128,128,128));
+            //else if(_isDebug)  image.setPixel(i,j,qRgb(128,128,128));
+            //else image.setPixel(i,j,qRgb(128,128,128));
         }
     }
     dataBundle.isValidDot = false;
@@ -466,15 +496,16 @@ QImage UtilImageProc::mainImageToBinImage(QString fileName)
     Mat image, gray, blur, median, blackWhite, erosion, dilation;
 
     image = imread(file, IMREAD_COLOR);
-    Rect crop_region(25, 100, image.cols-30, image.rows-130);
+    Rect crop_region(25, 25, image.cols-25, image.rows-25);
+    //Rect crop_region(25, 100, image.cols-30, image.rows-130);
     image = image(crop_region);
 
     cvtColor(image, gray, COLOR_BGR2GRAY);
     GaussianBlur(gray, blur, Size(5, 5), 0, 0);
-    medianBlur(blur, median, 5);
+    //medianBlur(blur, median, 5);
     //threshold(blur, blackWhite, 0, 255, THRESH_BINARY | THRESH_OTSU);
     //threshold(blur, blackWhite, 0, 255, THRESH_OTSU);
-    adaptiveThreshold(median, blackWhite, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY, 13, 6);
+    adaptiveThreshold(blur, blackWhite, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY, 13, 6);
     //threshold( blur, blackWhite, 230, 255, THRESH_BINARY );
     erode(blackWhite, erosion, getStructuringElement(MORPH_RECT, Size(5, 5)));
     dilate(erosion, dilation, getStructuringElement(MORPH_RECT, Size(5, 5)));

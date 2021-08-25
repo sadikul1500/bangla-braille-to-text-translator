@@ -13,6 +13,7 @@ public:
 
 public:
     QImage img;
+    long cnt=0;
 
 };
 

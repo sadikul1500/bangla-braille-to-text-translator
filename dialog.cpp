@@ -80,8 +80,8 @@ void Dialog::nextBtnHandler()
     //--------------------replaced--------------------
     resetAllUI();
     placeImageToImageLabel(SelectedFile);
-    imageLabel->scaleImage(1);
-    setDotProperty();
+    if(SelectedFile!=" ") imageLabel->scaleImage(1);
+    setDotProperty();           //retrieve dot property to identify a charachter
     avgStdXShower->setText(QString("%1,%2").arg(avgDotX).arg(stdDotX));
     avgStdYShower->setText(QString("%1,%2").arg(avgDotY).arg(stdDotY));
     m_isNextButtonClked = true;
@@ -226,6 +226,8 @@ void Dialog::createUI()
                 hLay2->addWidget(avgStdXShower);
                 hLay2->addWidget(new QLabel("AvY,StdY "));
                 hLay2->addWidget(avgStdYShower);
+                hLay2->addWidget(new QLabel("DotAvgX,cur(X,Y) "));
+                hLay2->addWidget(avgCurDotWithShower);
     QHBoxLayout *seltdCentXLay = new QHBoxLayout;
                 QLabel *label = new QLabel("Cent1");
                         label->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed);
@@ -304,6 +306,8 @@ void Dialog::initComponent()
             rgbShower = new QLineEdit;
                         //rgbShower->setPlaceholderText(QString("click"));
                         rgbShower->setDisabled(true);
+            avgCurDotWithShower = new QLineEdit;
+                        avgCurDotWithShower->setDisabled(true);
             pxPosShower = new QLineEdit();
                        //pxPosShower->setPlaceholderText(QString("click"));
                        pxPosShower->setDisabled(true);
@@ -349,7 +353,9 @@ void Dialog::resetAllUI() //not member variable
 }
 void Dialog::placeImageToImageLabel(QString path)
 {
+    if(path==" ") return;
     m_image = utilImageProcForDiaLog::mainImageToBinImage(path);
+    //m_image = QImage(path);
     imageLabel->setPixmap(QPixmap::fromImage(m_image));
 
 }
@@ -357,11 +363,16 @@ void Dialog::processDot(bool cntr1)
 {
 
     DataBundle dataBundle = utilImageProcForDiaLog::markDotByPoint(m_image,QPoint(imageLabel->point.x(),imageLabel->point.y()),minDotWidth,maxDotWidth); // here no problem with min and max because intitial is zero
+    counter++;
+    //qDebug()<<"X: "<<dataBundle.r-dataBundle.l<<endl;
+    avgDotWidth = ((counter-1)*avgDotWidth+(dataBundle.r-dataBundle.l))/counter;
+    avgCurDotWithShower->setText(QString("%1,%2,%3").arg(avgDotWidth).arg(dataBundle.r-dataBundle.l).arg(dataBundle.b-dataBundle.u));
     if(cntr1)
     {
         center1 = dataBundle.dotCenter;
         tempMinWidthSlctdCenter1 = std::min(tempMinWidthSlctdCenter1,dataBundle.r-dataBundle.l);
         tempMaxWidthSlctdCenter1 = std::max(tempMaxWidthSlctdCenter1,dataBundle.r-dataBundle.l);
+
     }
     else
     {
@@ -374,15 +385,7 @@ void Dialog::processDot(bool cntr1)
 void Dialog::processChar(bool cntr1)
 {
      DataBundle dataBundle(m_image);
-    if(dotPosLeft->isChecked())
-    {
-        dataBundle = utilImageProcForDiaLog::getBrailleChPosLeft(m_image,QPoint(imageLabel->point.x(),imageLabel->point.y()),avgDotX,avgDotY,minDotWidth,maxDotWidth,QPoint(stdDotX,stdDotY));
-
-    }
-    else
-    {
-        dataBundle = utilImageProcForDiaLog::getBrailleChPosRight(m_image,QPoint(imageLabel->point.x(),imageLabel->point.y()),avgDotX,avgDotY,minDotWidth,maxDotWidth,QPoint(QPoint(stdDotX,stdDotY)));
-    }
+     dataBundle = utilImageProcForDiaLog::findCenter(m_image,QPoint(imageLabel->point.x(),imageLabel->point.y()),QPoint(avgDotX,avgDotY),minDotWidth,maxDotWidth,QPoint(QPoint(stdDotX,stdDotY)));
     if(cntr1)
         center1 = dataBundle.charCenter;
     else
@@ -417,18 +420,23 @@ void Dialog::setDotProperty()
     if(avgDotX!=-1 && avgDotY!=-1) // if addHorizontal and addVartical clicked
     {
         minDotWidth = std::min(tempMinWidthSlctdCenter1,tempMinWidthSlctdCenter2);
+        minDotWidth = std::max(int(minDotWidth*0.5),5);
         maxDotWidth = std::max(tempMaxWidthSlctdCenter1,tempMaxWidthSlctdCenter2);
-        minDotWidth *=.45;
+
         maxDotWidth *=1.2;
+        //qDebug()<<stdDotX<<stdDotY<<endl;
+        stdDotX = std::max(5,stdDotX); //error to find dot
+        stdDotY = std::max(5,stdDotY); // erroro to find dot
+        //qDebug()<<stdDotX<<stdDotY<<endl;
 
     }
     else // retrieve previous one we saved
     {
         QSettings setting("mySoft","braille");
         setting.beginGroup("trainedVariable");
-            minDotWidth = setting.value("minDotWidth",15).toInt();
-            maxDotWidth = setting.value("maxDotWidth",15).toInt();
-            QPoint err = setting.value("errToFindDot",QPoint(0,0)).toPoint();
+            minDotWidth = setting.value("minDotWidth",5).toInt();
+            maxDotWidth = setting.value("maxDotWidth",20).toInt();
+            QPoint err = setting.value("errToFindDot",QPoint(5,5)).toPoint();
                    stdDotX = err.x(); stdDotY = err.y();
             QPoint dist = setting.value("distBetDot",QPoint(15,15)).toPoint();
                    avgDotX = dist.x(); avgDotY = dist.y();

@@ -1,9 +1,11 @@
 <RCC>
-    <qresource prefix="/Fonts">
-        <file>Font/kalpurush.ttf</file>
-    </qresource>
-    <qresource prefix="/logo">
-        <file>logo/ictLogo.png</file>
-        <file>logo/iitLogo.png</file>
+    <qresource prefix="/">
+        <file>logo/ictLogo.jpg</file>
+        <file>logo/iitLogo.jpg</file>
+        <file>logo/background1.jpg</file>
+        <file>logo/process.png</file>
+        <file>logo/readingBackground.png</file>
+        <file>logo/Start.png</file>
+        <file>logo/towidgetBackground.png</file>
     </qresource>
 </RCC>

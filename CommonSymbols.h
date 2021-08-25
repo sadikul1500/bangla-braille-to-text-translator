@@ -1,4 +1,4 @@
-#ifndef COMMONSYMBOLS_H
+﻿#ifndef COMMONSYMBOLS_H
 #define COMMONSYMBOLS_H
 #include <unordered_map>
 #include<iostream>

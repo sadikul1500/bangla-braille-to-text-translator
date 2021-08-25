@@ -11,11 +11,11 @@ public:
     DataBundle(QImage img);
     DataBundle();
     bool isValidCh();
-    bool isAllZero(int startIdx,int endIdx);
+    int countOne(int startIdx,int endIdx);
     QImage image;
     QString binChar;
     QPoint charCenter,dotCenter;
-    bool isValidDot,isLargeDot,isSmallDot; // false means it is a black dot but may be noise bcz width and height is too small
+    bool isValidDot,isLargeDot,shouldInCharIdentification,isVeryLarge; // false means it is a black dot but may be noise bcz width and height is too small
     int u=0,l=0,b=0,r=0;
     int numberOfDotInCh;
     QList<QString> charList;

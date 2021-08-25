@@ -8,7 +8,7 @@ class OListView : public QListView
 {
     Q_OBJECT
 public:
-    OListView();
+    OListView(QWidget *parent = nullptr);
     QModelIndexList selectedIndexes() const override{return QAbstractItemView::selectedIndexes();}
 protected:
     bool event(QEvent *e) override;

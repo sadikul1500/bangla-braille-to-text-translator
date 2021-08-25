@@ -2,7 +2,7 @@
 #include <QDebug>
 #include <QEvent>
 #include <qevent.h>
-OListView::OListView()
+OListView::OListView(QWidget *parent)
 {
     setSelectionMode(QAbstractItemView::ContiguousSelection);
     setSelectionRectVisible(true);

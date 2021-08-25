@@ -15,7 +15,7 @@ signals:
 public slots:
     void scaleImage(double factor);
 public:
-    ImageLabel();
+    ImageLabel(QWidget *parent = nullptr);
     double getScaleFactor();
     void mouseReleaseEvent(QMouseEvent *ev);// override;
     void setScaleFactor(double factor);

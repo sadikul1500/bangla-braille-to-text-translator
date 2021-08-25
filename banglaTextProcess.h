@@ -21,7 +21,7 @@ class BanglaTextProcess
     public:
         BanglaTextProcess()
         {
-            cout<<"Bangla text process"<<endl;
+            //cout<<"Bangla text process"<<endl;
         }
 
 
@@ -31,11 +31,11 @@ class BanglaTextProcess
             {
                 if(letters[i] == element.first)
                 {
-                    cout<<"dd "<<letters[i]<<endl;
+                    //cout<<"dd "<<letters[i]<<endl;
                     return element.second;
                 }
             }
-            cout<<"missed "<<letters[i]<<endl;
+            //cout<<"missed "<<letters[i]<<endl;
             return "";//letters[i];
         }
 
@@ -85,30 +85,30 @@ class BanglaTextProcess
 
         string englishProcess(vector<string> letters, int *bracket_count, int *i, int* length)
         {
-            cout<<"okkk0"<<endl;
-            cout<<*i+1<<endl;
-            cout<<*length<<endl;
+            //cout<<"okkk0"<<endl;
+            //cout<<*i+1<<endl;
+            //cout<<*length<<endl;
             if(english.getOperator().find(letters[*i]) != english.getOperator().end())
             {
-                 cout<<"okkk1"<<endl;
+                 //cout<<"okkk1"<<endl;
 
                  if(letters[*i] == "011011" and *bracket_count == 0)
                  {
-                     cout<<"first"<<endl;
+                     //cout<<"first"<<endl;
                      *bracket_count += 1;
                      return "(";
                  }
 
                  else if(letters[*i] == "011011" and *bracket_count == 1)
                  {
-                     cout<<"second"<<endl;
+                     //cout<<"second"<<endl;
                      *bracket_count = 0;
                      return ")";
                  }
 
                  else
                  {
-                     cout<<"okkk2"<<endl;
+                     //cout<<"okkk2"<<endl;
                      return english.getOperator()[letters[*i]];
                  }
             }
@@ -116,19 +116,19 @@ class BanglaTextProcess
 
             else if(english.getEnglishAlphabets().find(letters[*i]) != english.getEnglishAlphabets().end())
             {
-                cout<<"okkk4"<<endl;
+                //cout<<"okkk4"<<endl;
                 return english.getEnglishAlphabets()[letters[*i]];
             }
 
             else if(english.getPunctuation().find(letters[*i]) != english.getPunctuation().end())
             {
-                cout<<"okkk4"<<endl;
+                //cout<<"okkk4"<<endl;
                 return english.getPunctuation()[letters[*i]];
             }
 
             else if(*i+1 < *length && english.getOperator().find(letters[*i]+letters[*i+1]) != english.getOperator().end())
             {
-                cout<<"okkk3"<<endl;
+                //cout<<"okkk3"<<endl;
                 *i++;
                 return english.getOperator()[letters[*i-1] + letters[*i+1-1]];
             }
@@ -185,7 +185,7 @@ class BanglaTextProcess
 
             else
 			{
-				cout<<"digit not found\n";
+                //cout<<"digit not found\n";
 				return letters[*i];
 			}
         }
@@ -204,16 +204,16 @@ class BanglaTextProcess
 
             while(i < length)
             {
-                cout<<"btp "<<letters[i]<<endl;
+                //cout<<"btp "<<letters[i]<<endl;
                 if(num)
                 {
-                    cout<<"number process"<<endl;
+                    //cout<<"number process"<<endl;
                     text.push_back(numberProcess(letters, &bracket_count, &i, &length));
                 }
 
                 else if(eng)
                 {
-                    cout<<"english!!!"<<endl;
+                    //cout<<"english!!!"<<endl;
                     text.push_back(englishProcess(letters, &bracket_count, &i, &length));
                 }
 
@@ -221,27 +221,27 @@ class BanglaTextProcess
                 {
                     if(i == 0 && letters[i] == numeral_sign)
                     {
-                        cout<<"numeral sign found in bangla"<<endl;
+                        //cout<<"numeral sign found in bangla"<<endl;
                         num = true;
                     }
 
                     else if(letters[i] == numeral_sign && i-1 >= 0 && (bangla.getPunctuation().find(letters[i-1]) != bangla.getPunctuation().end()
                             || bangla.getDot().find(letters[i]) != bangla.getDot().end()))
                     {
-                        cout<<"numeral sign found"<<endl;
+                        //cout<<"numeral sign found"<<endl;
                         num = true;
                     }
 
                     else if(i == 0 && letters[i] == english_sign)
                     {
-                        cout<<"english sign found in bangla"<<endl;
+                        //cout<<"english sign found in bangla"<<endl;
                         eng = true;
                     }
 
                     else if(letters[i] == english_sign && i-1 >= 0 && bangla.getPunctuation().find(letters[i-1]) != bangla.getPunctuation().end()
                             )
                     {
-                        cout<<"english sign found"<<endl;
+                        //cout<<"english sign found"<<endl;
                         eng = true;
                     }
 
@@ -249,14 +249,14 @@ class BanglaTextProcess
                     {
                         if(i + 1 < length && bangla.getTwelveDots().find(letters[i] + letters[i + 1])!= bangla.getTwelveDots().end())
                         {
-                            cout<<"twelve dots"<<endl;
+                            //cout<<"twelve dots"<<endl;
                             text.push_back(bangla.getTwelveDots()[letters[i] + letters[i + 1]]);
                             i += 1;
                         }
 
                         else if(bangla.getDouble_mapping().find(letters[i]) != bangla.getDouble_mapping().end())
                         {
-                            cout<<"double mapping"<<endl;
+                            //cout<<"double mapping"<<endl;
                             DoubleMap doubleMap(letters, i, bracket_count);
                             text.push_back(doubleMap.getCharFromDoubleMap());
                             bracket_count = doubleMap.getBracket_count();
@@ -265,7 +265,7 @@ class BanglaTextProcess
 
                         else if(i == 0 && letters[i] == operator_sign && i+1 < length)
                         {
-                            cout<<"operator sign"<<endl;
+                            //cout<<"operator sign"<<endl;
                             text.push_back(bangla.getMathOperator()[letters[i+1]]);
                             i += 1;
                         }
@@ -277,7 +277,7 @@ class BanglaTextProcess
 
                             if(txt == "")
                             {
-                                cout<<"last"<<endl;
+                                //cout<<"last"<<endl;
                                 text.push_back(getText(dd, letters, i));
                             }
                             else text.push_back(txt);

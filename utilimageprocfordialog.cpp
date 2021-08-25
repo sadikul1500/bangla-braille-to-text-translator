@@ -1,5 +1,5 @@
 ﻿#include "utilimageprocfordialog.h"
-#include "ulbrofdot.h"
+#include "ulbrofdotv4.h"
 #include <QApplication>
 
 #include <QDebug>
@@ -74,9 +74,10 @@ QImage utilImageProcForDiaLog::markByULBR(QImage img, QRgb rgb, QList<int> ULBR)
 
 DataBundle utilImageProcForDiaLog::markDotByPoint(QImage image, QPoint point, int minWidth, int maxWidth)
 { // assuming point is a black dot
-    ULBROfDot ulbrObjct(image);
+    ULBRofDotV4 ulbrObjct(image);
     qApp->processEvents();
     QList<int> list = ulbrObjct.findULBR(point.x(),point.y());
+    //qDebug()<<"area: "<<ulbrObjct.getArea()<<endl;
     qApp->processEvents();
     int x = (list[1]+list[3])/2;
     int y = (list[0]+list[2])/2;
@@ -124,6 +125,7 @@ DataBundle utilImageProcForDiaLog::searchForBlackDotAndMark(QImage image, QPoint
             if(dataBundle.isValidDot) return dataBundle;
             i = dataBundle.r;
         }
+        else image.setPixel(i,point.y(),qRgb(128,128,128));
     }
     to = point.x() - errH;
     for(int i=from;i>=to;i--)
@@ -136,6 +138,7 @@ DataBundle utilImageProcForDiaLog::searchForBlackDotAndMark(QImage image, QPoint
             if(dataBundle.isValidDot) return dataBundle;
             i = dataBundle.l;
         }
+        else image.setPixel(i,point.y(),qRgb(128,128,128));
     }
     from = point.y();
     to = point.y() + errV;
@@ -149,6 +152,7 @@ DataBundle utilImageProcForDiaLog::searchForBlackDotAndMark(QImage image, QPoint
             if(dataBundle.isValidDot) return dataBundle;
             i = dataBundle.b;
         }
+        else image.setPixel(point.x(),i,qRgb(128,128,128));
     }
     to = point.y() - errV;
     for(int i=from;i>=to;i--)
@@ -161,8 +165,10 @@ DataBundle utilImageProcForDiaLog::searchForBlackDotAndMark(QImage image, QPoint
             if(dataBundle.isValidDot) return dataBundle;
             i = dataBundle.u;
         }
+        else image.setPixel(point.x(),i,qRgb(128,128,128));
     }
     dataBundle.isValidDot = false;
+    dataBundle.image = image;
     return  dataBundle;
 }
 // searchForBlackDotAndMark handle negetive and positive index
@@ -180,9 +186,10 @@ DataBundle utilImageProcForDiaLog::getBrailleChPosLeft(QImage image, QPoint poin
      for(int i=1;i<=6;i++)
      {
          DataBundle dataBundle = utilImageProcForDiaLog::searchForBlackDotAndMark(image,tempPoint,minWidth,maxWidth,err);
+         image = dataBundle.image;
          if(dataBundle.isValidDot)
          {
-             image = dataBundle.image;
+             //image = dataBundle.image;
              tempPoint = dataBundle.dotCenter;
              dotCount++;
              ch.append("1");
@@ -201,22 +208,17 @@ DataBundle utilImageProcForDiaLog::getBrailleChPosLeft(QImage image, QPoint poin
          }
 
      }
+    image.setPixel(totalPoint.x()/6,totalPoint.y()/6,qRgb(128,128,128));
+    image.setPixel(totalPoint.x()/6,totalPoint.y()/6-1,qRgb(128,128,128));
+    image.setPixel(totalPoint.x()/6,totalPoint.y()/6-2,qRgb(128,128,128));
+    image.setPixel(totalPoint.x()/6,totalPoint.y()/6+2,qRgb(128,128,128));
+    image.setPixel(totalPoint.x()/6,totalPoint.y()/6+1,qRgb(128,128,128));
 
     DataBundle dataBundle(image);
                 dataBundle.numberOfDotInCh = dotCount;
                 dataBundle.charCenter = QPoint(totalPoint.x()/6,totalPoint.y()/6);
                 dataBundle.binChar = ch;
     return  dataBundle;
-}
-
-DataBundle utilImageProcForDiaLog::getBrailleChPosRight(QImage image, QPoint point, int HdotDist, int VdotDist, int minWidth, int maxWidth, QPoint err)
-{   // no need to search i know it is a valid black dot
-    ULBROfDot ulbrObjct(image);
-    QList<int> list = ulbrObjct.findULBR(point.x(),point.y());
-    int centerX = (list[1]+list[3])/2;
-    int centerY = (list[0]+list[2])/2;
-    QPoint leftUpperDot = QPoint(centerX-HdotDist,centerY); // i am not sure this point is black or not
-    return getBrailleChPosLeft(image,leftUpperDot,HdotDist,VdotDist,minWidth,maxWidth,err);
 }
 
 DataBundle utilImageProcForDiaLog::getBrailleChPosCenter(QImage image, QPoint center, QPoint distBetDot, int minWidth, int maxWidth, QPoint errToFindDot)
@@ -240,7 +242,7 @@ DataBundle utilImageProcForDiaLog::getBrailleChPosCenter(QImage image, QPoint ce
     if(tempDataBundle.isValidDot)
     {
         tempPoint = tempDataBundle.dotCenter;
-        return  getBrailleChPosRight(image,tempPoint,HdotDist,VdotDist,minWidth,maxWidth,errToFindDot);
+        return  getBrailleChPosLeft(image,QPoint(tempPoint.x()-HdotDist,tempPoint.y()),HdotDist,VdotDist,minWidth,maxWidth,errToFindDot);
     }
     //---------leftMiddle---------------
     tempPoint = QPoint(center.x()-(HdotDist/2),center.y());
@@ -257,7 +259,7 @@ DataBundle utilImageProcForDiaLog::getBrailleChPosCenter(QImage image, QPoint ce
     if(tempDataBundle.isValidDot)
     {
         tempPoint = tempDataBundle.dotCenter;
-        return  getBrailleChPosRight(image,QPoint(tempPoint.x(),tempPoint.y()-VdotDist),HdotDist,VdotDist,minWidth,maxWidth,errToFindDot);
+        return  getBrailleChPosLeft(image,QPoint(tempPoint.x()-HdotDist,tempPoint.y()-VdotDist),HdotDist,VdotDist,minWidth,maxWidth,errToFindDot);
     }
     //-------------- leftBelow-----------------
     tempPoint = QPoint(center.x()-(HdotDist/2),center.y()+VdotDist);
@@ -275,9 +277,8 @@ DataBundle utilImageProcForDiaLog::getBrailleChPosCenter(QImage image, QPoint ce
     if(tempDataBundle.isValidDot)
     {
         tempPoint = tempDataBundle.dotCenter;
-        return  getBrailleChPosRight(image,QPoint(tempPoint.x(),tempPoint.y()-(2*VdotDist)),HdotDist,VdotDist,minWidth,maxWidth,errToFindDot);
+        return  getBrailleChPosLeft(image,QPoint(tempPoint.x()-HdotDist,tempPoint.y()-(2*VdotDist)),HdotDist,VdotDist,minWidth,maxWidth,errToFindDot);
     }
-
 
 
     DataBundle dataBundle(image);
@@ -286,8 +287,14 @@ DataBundle utilImageProcForDiaLog::getBrailleChPosCenter(QImage image, QPoint ce
                 return  dataBundle;
 }
 
-DataBundle utilImageProcForDiaLog::findCenter(QImage image, QPoint cntrBlckDot, QPoint distBetDot, int minWidth, int maxWidth, QPoint errToFindDot)
+DataBundle utilImageProcForDiaLog::findCenter(QImage image, QPoint blackPoint, QPoint distBetDot, int minWidth, int maxWidth, QPoint errToFindDot)
 {
+    QImage tempImage = image;
+    ULBRofDotV4 ulbrObjct(tempImage);
+    QList<int> list = ulbrObjct.findULBR(blackPoint.x(),blackPoint.y());
+    QPoint cntrBlckDot((list[1]+list[3])/2,(list[0]+list[2])/2);
+    //qDebug()<<cntrBlckDot<<endl;
+            //--------------
     QPoint leftUpper = QPoint(cntrBlckDot.x()+(distBetDot.x()/2),cntrBlckDot.y()+distBetDot.y());
     QPoint leftMiddle = QPoint(cntrBlckDot.x()+(distBetDot.x()/2),cntrBlckDot.y());
     QPoint leftBelow = QPoint(cntrBlckDot.x()+(distBetDot.x()/2),cntrBlckDot.y()-distBetDot.y());
@@ -320,141 +327,30 @@ DataBundle utilImageProcForDiaLog::findCenter(QImage image, QPoint cntrBlckDot, 
      return dataBundleForMax;
 }
 
-bool utilImageProcForDiaLog::isCharCenter(QImage image, QPoint cntrChar, QPoint distBetDot, int minWidth, int maxWidth, QPoint errToFindDot)
-{
-    DataBundle originalChar = getBrailleChPosCenter(image,cntrChar,distBetDot,minWidth,maxWidth,errToFindDot);
-    if(!originalChar.isValidDot) return  false;
-    int from =cntrChar.x()-distBetDot.x();
-    int to = cntrChar.x()+distBetDot.x();
-    for(int i=from;i<to;i+=2)
-    {
-        DataBundle tempDataBundle = getBrailleChPosCenter(image,QPoint(i,cntrChar.y()),distBetDot,minWidth,maxWidth,errToFindDot);
-        if(tempDataBundle.numberOfDotInCh>originalChar.numberOfDotInCh)
-            return  false;
-    }
-    from =cntrChar.y()-distBetDot.y();
-    to = cntrChar.y()+distBetDot.y();
-    for(int i=from;i<to;i+=2)
-    {
-        DataBundle tempDataBundle = getBrailleChPosCenter(image,QPoint(cntrChar.x(),i),distBetDot,minWidth,maxWidth,errToFindDot);
-        if(tempDataBundle.numberOfDotInCh>originalChar.numberOfDotInCh)
-            return  false;
-    }
-    return  true;
-}
-
-DataBundle utilImageProcForDiaLog::findChar(QImage image, QPoint startPt, QPoint distBetDot, QPoint distBetCh, int minWidth, int maxWidth, QPoint errToFindDot)
-{
-    int row = image.height();
-    int col = image.width();
-    DataBundle dataBundle = DataBundle(image);
-    for(int j=startPt.y();j<row;j+=5)
-    {
-        for(int i=startPt.x();i<col;i+=3)
-        {
-            if(image.pixel(i,j)==qRgb(0,0,0))
-            {
-                dataBundle = markDotByPoint(image,QPoint(i,j),minWidth,maxWidth);
-                if(dataBundle.isLargeDot || !dataBundle.isValidDot) continue;
-                dataBundle = findCenter(image,dataBundle.dotCenter,distBetDot,minWidth,maxWidth,errToFindDot);
-                QPoint leftPt = QPoint(dataBundle.charCenter.x()-distBetCh.x(),dataBundle.charCenter.y());
-                QPoint rightpt = QPoint(dataBundle.charCenter.x()+distBetCh.x(),dataBundle.charCenter.y());
-                if(isCharCenter(image,leftPt,distBetDot,minWidth,maxWidth,errToFindDot) && isCharCenter(image,rightpt,distBetDot,minWidth,maxWidth,errToFindDot))
-                    return dataBundle;
-
-            }
-        }
-    }
-    dataBundle.isValidDot = false;
-    return dataBundle;
-}
-
-DataBundle utilImageProcForDiaLog::readLineLeftPart(QImage image, QPoint cnterCh, QPoint distBetDot, QPoint distBetCh, int minWidth, int maxWidth, QPoint errToFindDot)
-{
-    QList<QString> charList;
-    int isSpace = 0;
-    DataBundle dataBundle(image);
-    dataBundle.charCenter = QPoint(cnterCh);
-    while(dataBundle.charCenter.x()>0)
-    {
-
-        dataBundle = getBrailleChPosCenter(image,dataBundle.charCenter,distBetDot,minWidth,maxWidth,QPoint((isSpace/10.0+1)*errToFindDot.x(),(isSpace/10.0+1)*errToFindDot.y()));
-
-        if(dataBundle.isValidDot) // actually valid character
-        {
-            if(isSpace)
-            {
-                isSpace = 0;
-                charList.prepend("space");
-
-            }
-            charList.prepend(dataBundle.binChar);
-            image = dataBundle.image;
-        }
-        else
-            isSpace++;
-        dataBundle.charCenter.setX(dataBundle.charCenter.x()-distBetCh.x()); //corrected
-    }
-    dataBundle.image = image;
-    dataBundle.charList = charList;
-    return dataBundle;
-}
-
-DataBundle utilImageProcForDiaLog::readLineRightPart(QImage image, QPoint cnterCh, QPoint distBetDot, QPoint distBetCh, int minWidth, int maxWidth, QPoint errToFindDot)
-{ // i know it is a character
-    int col = image.width();
-    QList<QString> charList;
-    int isSpace = 0;
-    DataBundle dataBundle(image);
-    dataBundle.charCenter = QPoint(cnterCh);
-    while(dataBundle.charCenter.x()<col)
-    {
-
-        dataBundle = getBrailleChPosCenter(image,dataBundle.charCenter,distBetDot,minWidth,maxWidth,QPoint((isSpace/10.0+1)*errToFindDot.x(),(isSpace/10.0+1)*errToFindDot.y()));
-
-        if(dataBundle.isValidDot)
-        {
-            if(isSpace)
-            {
-                isSpace = 0;
-                charList.append("space");
-
-            }
-            charList.append(dataBundle.binChar);
-            image = dataBundle.image;
-        }
-        else
-            isSpace++;
-        dataBundle.charCenter.setX(dataBundle.charCenter.x()+distBetCh.x());
-    }
-    dataBundle.image = image;
-    dataBundle.charList = charList;
-    return dataBundle;
-}
-
-DataBundle utilImageProcForDiaLog::readLine(QImage image, QPoint cnterCh, QPoint distBetDot, QPoint distBetCh, int minWidth, int maxWidth, QPoint errToFindDot)
-{
-    DataBundle rightDataBundle = readLineRightPart(image,cnterCh,distBetDot,distBetCh,minWidth,maxWidth,errToFindDot);
-    DataBundle leftDataBundle = readLineLeftPart(rightDataBundle.image,QPoint(cnterCh.x()-distBetCh.x(),cnterCh.y()),distBetDot,distBetCh,minWidth,maxWidth,errToFindDot);
-    leftDataBundle.charList.append(rightDataBundle.charList);
-    return leftDataBundle;
-}
-
 QImage utilImageProcForDiaLog::mainImageToBinImage(QString fileName)
 {
     //return QImage(imageFile);
     string file = fileName.toStdString(); //if you need std c++ string
 
-    Mat image, gray, blur, blackWhite;
+    Mat image, gray, blur, median, blackWhite, erosion, dilation;
 
     image = imread(file, IMREAD_COLOR);
+    Rect crop_region(25, 25, image.cols-25, image.rows-25);
+    image = image(crop_region);
+
     cvtColor(image, gray, COLOR_BGR2GRAY);
     GaussianBlur(gray, blur, Size(5, 5), 0, 0);
-    threshold(blur, blackWhite, 0, 255, THRESH_BINARY | THRESH_OTSU);
+    medianBlur(blur, median, 5);
+    //threshold(blur, blackWhite, 0, 255, THRESH_BINARY | THRESH_OTSU);
+    //threshold(blur, blackWhite, 0, 255, THRESH_OTSU);
+    adaptiveThreshold(median, blackWhite, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY, 13, 6);
+    //threshold( blur, blackWhite, 230, 255, THRESH_BINARY );
+    erode(blackWhite, erosion, getStructuringElement(MORPH_RECT, Size(5, 5)));
+    dilate(erosion, dilation, getStructuringElement(MORPH_RECT, Size(5, 5)));
 
     string out = "out_bin.png";
 
-    imwrite(out, blackWhite);
+    imwrite(out, dilation);
     //QImage imgOut= QImage((uchar*) blackWhite.data, blackWhite.cols, blackWhite.rows, blackWhite.step, QImage::Format_Grayscale8);
     //cout<<endl<<blackWhite<<endl;
     //string outFile = "out_" + file;

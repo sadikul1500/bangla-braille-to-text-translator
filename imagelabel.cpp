@@ -7,7 +7,7 @@
 
 
 
-ImageLabel::ImageLabel()
+ImageLabel::ImageLabel(QWidget *parent)
 {
     QFontDatabase::addApplicationFont(":/Fonts/Font/kalpurush.ttf");
     QFont font = QFont("Kalpurush", 20, 10);

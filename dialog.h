@@ -55,6 +55,7 @@ private:
     QCheckBox *dotDistCheckBox,*charDistCheckBox;
     //----QLineEdit---------------
     QLineEdit *hDistShower,*vDistShower,*seltdCenterXShower,*seltdCenterYShower,*rgbShower,*pxPosShower,*avgStdXShower,*avgStdYShower;
+    QLineEdit *avgCurDotWithShower;
     // ----QPushButton-----declaration------
     QPushButton *workingOnBtn,*nextBtn,*cancelBtn,*okBtn,*zoomInBtn,*zoomOutBtn,*addHBtn,*addVBtn,*openBtn;
     //ImageLabel
@@ -66,7 +67,8 @@ private:
     QPoint center1,center2;
     // variable
     int avgDotX=-1,avgDotY=-1,stdDotX=-1,stdDotY=-1,avgChX=-1,avgChY=-1,stdChX=-1,stdChY=-1;
-
+    int counter = 0;
+    int avgDotWidth = 0;
 
     //----QLayout------
     QVBoxLayout *openSeltdXSeltdY;
@@ -77,7 +79,7 @@ private:
 
     // after nextButton clicked
     bool m_isNextButtonClked = false;
-    QString SelectedFile;
+    QString SelectedFile=" ";
     // dot property
     int minDotWidth = 999999,tempMinWidthSlctdCenter1=999999,tempMinWidthSlctdCenter2=999999;
     int maxDotWidth = -1,tempMaxWidthSlctdCenter1 = -1,tempMaxWidthSlctdCenter2 = -1;

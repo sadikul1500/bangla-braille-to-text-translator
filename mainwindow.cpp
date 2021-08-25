@@ -1,6 +1,6 @@
-﻿
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+
 #include "utilfileanddir.h"
 #include "utilimageproc.h"
 #include <QDebug>
@@ -13,40 +13,39 @@
 #include <QPrinter>
 #include <QProgressDialog>
 #include <QSettings>
-#include <QSplitter>
+//#include <QSplitter>
 #include <QStringListModel>
-#include <QThread>
-#include <QTime>
+//#include <QTemporaryFile>
+//#include <QThread>
+//#include <QTime>
 #include <qevent.h>
 #include <qfiledialog.h>
 #include <qfontdatabase.h>
-#include <bits/stdc++.h>
+//#include <bits/stdc++.h>
 #include "brailleToText.h"
 #include "brailleToBangla.h"
-using namespace std;
-MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent)//,ui(new Ui::MainWindow)
+#include"frontPage/frontpage.h"
+MainWindow::MainWindow(QWidget *parent)
+    : QMainWindow(parent)
+    , ui(new Ui::MainWindow)
 {
-    //ui->setupUi(this);
-//    readMemberVariable();
+    FrontPage *fntpage = new FrontPage(this);
+    fntpage->exec();
+    setWindowState(Qt::WindowMaximized);
+    ui->setupUi(this);
+    setWindowTitle("Braille");
+    //readMemberVariable();
     readDefaultMemberVariable();
     createActions();
-    createMenu();
     initMemWidget();
     connectWidget();
-    layoutWidget();
-    setWindowTitle("Braille");
-    this->setStyleSheet("background-color: rgb(112,180,213);");
-    this->menuBar()->setStyleSheet("background-color: rgb(200,200,200)");
-    setTabOrder(openListView,resultListView);
-
+    //ui->statusbar->showMessage("bsse1029@iit.du.ac.bd | bsse1003@iit.du.ac.bd");
 }
 
 MainWindow::~MainWindow()
 {
-    //delete ui;
+    delete ui;
 }
-
 void MainWindow::on_environmenVariableAction_triggered()
 {
     if(!shouldProceed()) return;
@@ -58,15 +57,22 @@ void MainWindow::on_environmenVariableAction_triggered()
 
 }
 
+void MainWindow::on_DebugAction_triggered()
+{
+    if(!shouldProceed()) return;
+    w.show();
+}
+
 void MainWindow::readMemberVariable()
 {
     QSettings setting("mySoft","braille");
     setting.beginGroup("trainedVariable");
         m_minDotWidth = setting.value("minDotWidth",5).toInt();
         m_maxDotWidth = setting.value("maxDotWidth",27).toInt();
-//        qDebug()<<m_minDotWidth<<m_maxDotWidth<<endl;
-        m_errDot = setting.value("errToFindDot",QPoint(3,4)).toPoint();
+        //qDebug()<<m_minDotWidth<<m_maxDotWidth<<endl;
+        m_errDot = setting.value("errToFindDot",QPoint(5,5)).toPoint();
         m_errCh = setting.value("errToFindChar",QPoint(1,1)).toPoint();
+        //qDebug()<<"m_errDot: "<<m_errDot<<" m_minDotWidth: "<<m_minDotWidth;
         m_distBetDot = setting.value("distBetDot",QPoint(30,27)).toPoint();
         m_distBetCh = setting.value("distBetChar",QPoint(76,253)).toPoint();
 //        qDebug()<<m_minDotWidth<<" "<<m_maxDotWidth<<" "<<m_errDot<<" "<<m_errCh<<" "<<m_distBetDot<<" "<<m_distBetCh;
@@ -75,47 +81,28 @@ void MainWindow::readMemberVariable()
 
 void MainWindow::readDefaultMemberVariable()
 {
-    m_minDotWidth = 5;
+    m_minDotWidth = 8;
     m_maxDotWidth = 27;
-    m_errDot = 2*QPoint(3,4);
-    m_errCh = QPoint(1,1);
-    m_distBetDot = QPoint(30,27);
-    m_distBetCh = QPoint(76,253);
-    //qDebug()<<m_minDotWidth<<" "<<m_maxDotWidth<<" "<<m_errDot<<" "<<m_errCh<<" "<<m_distBetDot<<" "<<m_distBetCh;
-}
+    m_errDot = QPoint(10,10);
 
-void MainWindow::createMenu()
-{
-    menuFiles =  menuBar()->addMenu("Files");
-        menuFiles->addAction(actionOpenFiles);
-        menuFiles->addAction(actionAddFiles);
-        menuFiles->addAction(actionRemoveFileForOpen);
-        menuFiles->addAction(actionQuit);
-    menuSettings =  menuBar()->addMenu("Settings");
-        menuSettings->addAction(actionEnvironmenVariable);
-    menuHelp =  menuBar()->addMenu("Help");
-        menuHelp->addAction(actionContactUs);
+    m_errCh = QPoint(1,1);
+    m_distBetDot = QPoint(28,32);
+    m_distBetCh = QPoint(76,126);
+    //qDebug()<<m_minDotWidth<<" "<<m_maxDotWidth<<" "<<m_errDot<<" "<<m_errCh<<" "<<m_distBetDot<<" "<<m_distBetCh;
+    m_minDotWidth = 5;
+    m_maxDotWidth = 20;
+    m_errDot = QPoint(8,8);
+    m_distBetDot = QPoint(25,25);
+    m_distBetCh = QPoint(62,95);
 
 }
 
 void MainWindow::createActions()
 {
-    actionOpenFiles = new QAction("Open Images");
-        actionOpenFiles->setShortcut(tr("Ctrl+O"));
-    actionAddFiles =  new QAction("Add Images");
-    actionRemoveFileForOpen =  new QAction("Remove Files");
-        //actionRemoveFileForOpen->setShortcut(tr("Delete"));
     actionRemoveFileForResult = new QAction("Remove Files");
-        //actionRemoveFileForResult->setShortcut(tr("Delete"));
-    actionEnvironmenVariable = new QAction("Environment Variable");
-    actionContactUs = new QAction("Contact Us");
     actionselectAllForOpen = new QAction("Select All");
-        //actionselectAllForOpen->setShortcut(tr("Ctrl + A"));
     actionselectAllForResult = new QAction("Select All");
-      //actionselectAllForResult->setShortcut(tr("Ctrl + A"));
-    actionQuit = new QAction("Quit");
     actionSaveFiles = new QAction("Save Files");
-        //actionSaveFiles->setShortcut(tr("Ctrl + S"));
     exportAsPdfForResult = new QAction("Export As PDF");
     actionPrint = new QAction("Print");
 
@@ -124,144 +111,88 @@ void MainWindow::createActions()
 void MainWindow::initMemWidget()
 {
     //ImageLabel
-        imageLabel = new ImageLabel;
-        imageLabel->setBackgroundRole(QPalette::Base);
-        imageLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
-        imageLabel->setScaledContents(true);
+        //imageLabel = new ImageLabel(nullptr);
+        ui->imageLabel->setBackgroundRole(QPalette::Base);
+        ui->imageLabel->setScaledContents(true);
     //ScrollArea
-        scrollArea = new QScrollArea(this);
-        scrollArea->setBackgroundRole(QPalette::Dark);
+        ui->scrollArea->setBackgroundRole(QPalette::Dark);
+        ui->scrollArea->setWidget(ui->imageLabel);
     // openListView
-        openListView = new OListView;
-        openListView->addAction(actionselectAllForOpen);
-        openListView->addAction(actionRemoveFileForOpen);
+        ui->openListView->addAction(actionselectAllForOpen);
+        ui->openListView->addAction(ui->actionRemoveFileForOpen);
 
-        resultListView = new OListView;
-        resultListView->addAction(actionselectAllForResult);
-        resultListView->addAction(actionSaveFiles);
-        resultListView->addAction(actionRemoveFileForResult);
-        resultListView->addAction(exportAsPdfForResult);
-        resultListView->addAction(actionPrint);
-        imageLabel->setStyleSheet("background-color: rgb(128,200,200);");
-        scrollArea->setStyleSheet("background-color: rgb(128,200,200);");
-        openListView->setStyleSheet("background-color: rgb(180,200,210);");
-        resultListView->setStyleSheet("background-color: rgb(180,200,210);");
+        //ui->resultListView = new OListView;
+        ui->resultListView->addAction(actionselectAllForResult);
+        ui->resultListView->addAction(actionSaveFiles);
+        ui->resultListView->addAction(actionRemoveFileForResult);
+        ui->resultListView->addAction(exportAsPdfForResult);
+        ui->resultListView->addAction(actionPrint);
+        //scrollArea->setStyleSheet("background-color: rgb(128,200,200);");
         resultModel = new QStringListModel(this);
-        resultListView->setModel(resultModel);
-        resultListView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+        ui->resultListView->setModel(resultModel);
+        ui->resultListView->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
     // QPushButton
-    convrt = new QPushButton("Convert");
-    convrtAll = new QPushButton("Convert All");
-    convrt->setSizePolicy(QSizePolicy::Maximum,QSizePolicy::Maximum);
-    convrtAll->setSizePolicy(QSizePolicy::Maximum,QSizePolicy::Maximum);
-    convrt->setStyleSheet("background-color: rgb(100,150,100);");
-    convrtAll->setStyleSheet("background-color: rgb(100,200,100);");
-
-    // QLable
-    brailleImageLabel = new QLabel("<p style=\"color:red;\"><i>Image Files</i></p>");
-    brailleImageLabel->setStyleSheet("background-color: rgb(118,210,110);");
-    brailleTextLabel = new QLabel("<p style=\"color:red;\"><i>Text Files</i></p>");
-    brailleTextLabel->setStyleSheet("background-color: rgb(118,210,110);");
+    //ui->convrt->setSizePolicy(QSizePolicy::Maximum,QSizePolicy::Maximum);
+    //ui->convrtAll->setSizePolicy(QSizePolicy::Maximum,QSizePolicy::Maximum);
+    //ui->convrt->setStyleSheet("background-color: rgb(100,150,100);");
+    //ui->convrtAll->setStyleSheet("background-color: rgb(100,200,100);");
 }
 
 void MainWindow::connectWidget()
 {
-    connect(openListView, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(onOpenListViewItemClicked()));
-    connect(openListView, SIGNAL(upDownKeyPressed()), this, SLOT(onOpenListViewItemClicked()));
-    connect(openListView, SIGNAL(deletPressed()), this, SLOT(removeForOpenView()));
-    connect(convrtAll,SIGNAL(clicked()),this,SLOT(onCnvrtAllClick()));
-    connect(convrt,SIGNAL(clicked()),this,SLOT(onCnvrtClick()));
-    connect(resultListView,SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(onResultListViewItemClicked()));
-    connect(resultListView, SIGNAL(upDownKeyPressed()), this, SLOT(onResultListViewItemClicked()));
-    connect(resultListView, SIGNAL(leftKeyPressed()), this, SLOT(ontextBtnClicked()));
-    connect(resultListView, SIGNAL(rightKeyPressed()), this, SLOT(onimageBtnClicked()));
-    connect(resultListView, SIGNAL(deletPressed()), this, SLOT(removeForResultView()));
-    connect(resultListView, SIGNAL(cntrlPlusSPressed()), this, SLOT(on_saveFiles()));
-    connect(resultListView, SIGNAL(cntrlPlusAltPlusSPressed()), this, SLOT(on_saveBinFiles()));
+    connect(ui->openListView, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(onOpenListViewItemClicked()));
+    connect(ui->openListView, SIGNAL(upDownKeyPressed()), this, SLOT(onOpenListViewItemClicked()));
+    connect(ui->openListView, SIGNAL(deletPressed()), this, SLOT(removeForOpenView()));
+    connect(ui->convrtAll,SIGNAL(clicked()),this,SLOT(onCnvrtAllClick()));
+    connect(ui->convrt,SIGNAL(clicked()),this,SLOT(onCnvrtClick()));
+    connect(ui->resultListView,SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(onResultListViewItemClicked()));
+    connect(ui->resultListView, SIGNAL(upDownKeyPressed()), this, SLOT(onResultListViewItemClicked()));
+    connect(ui->resultListView, SIGNAL(leftKeyPressed()), this, SLOT(ontextBtnClicked()));
+    connect(ui->resultListView, SIGNAL(rightKeyPressed()), this, SLOT(onimageBtnClicked()));
+    connect(ui->resultListView, SIGNAL(deletPressed()), this, SLOT(removeForResultView()));
+    connect(ui->resultListView, SIGNAL(cntrlPlusSPressed()), this, SLOT(on_saveFiles()));
+    connect(ui->resultListView, SIGNAL(cntrlPlusAltPlusSPressed()), this, SLOT(on_saveBinFiles()));
 
     //-------------Action-------------------------------
-    connect(actionOpenFiles,SIGNAL(triggered()),this,SLOT(on_openFiles()));
-    connect(actionEnvironmenVariable,SIGNAL(triggered()),this,SLOT(on_environmenVariableAction_triggered()));
-    connect(actionAddFiles,SIGNAL(triggered()),this,SLOT(on_addFiles()));
-    connect(actionRemoveFileForOpen,SIGNAL(triggered()),this,SLOT(removeForOpenView()));
+    connect(ui->actionOpenFiles,SIGNAL(triggered()),this,SLOT(on_openFiles()));
+    connect(ui->actionEnvironmenVariable,SIGNAL(triggered()),this,SLOT(on_environmenVariableAction_triggered()));
+    //connect(actionIsDebug,&QAction::triggered,[=](){;});
+    connect(ui->actionDebug,SIGNAL(triggered()),this,SLOT(on_DebugAction_triggered()));
+    connect(ui->actionAddFiles,SIGNAL(triggered()),this,SLOT(on_addFiles()));
+    connect(ui->actionRemoveFileForOpen,SIGNAL(triggered()),this,SLOT(removeForOpenView()));
     connect(actionRemoveFileForResult,SIGNAL(triggered()),this,SLOT(removeForResultView()));
-    connect(actionselectAllForOpen,&QAction::triggered,[=](){openListView->selectAll();});
-    connect(actionselectAllForResult,&QAction::triggered,[=](){resultListView->selectAll();});
-    connect(actionQuit,&QAction::triggered,[=](){close();});
+    connect(actionselectAllForOpen,&QAction::triggered,[=](){ui->openListView->selectAll();});
+    connect(actionselectAllForResult,&QAction::triggered,[=](){ui->resultListView->selectAll();});
+    connect(ui->actionQuit,&QAction::triggered,[=](){close();});
     connect(actionSaveFiles,SIGNAL(triggered()),this,SLOT(on_saveFiles()));
+    connect(ui->btnSave,SIGNAL(clicked()),this,SLOT(on_saveFiles()));
     connect(exportAsPdfForResult,SIGNAL(triggered()),this,SLOT(on_savePDFFiles()));
+    connect(ui->btnPrint,SIGNAL(clicked()),this,SLOT(on_Print()));
     connect(actionPrint,SIGNAL(triggered()),this,SLOT(on_Print()));
 
-}
-
-void MainWindow::layoutWidget()
-{
-
-    //------------------left---------------------
-
-    QHBoxLayout *convrtLay = new QHBoxLayout;
-                 convrtLay->addWidget(convrt);
-                 convrtLay->addWidget(convrtAll);
-                 convrtLay->addSpacerItem(new QSpacerItem(1,1,QSizePolicy::Expanding,QSizePolicy::Fixed));
-    QLabel *iitLogoLabel = new QLabel();
-            iitLogoLabel->setPixmap(QPixmap::fromImage(QImage(":/logo/logo/iitLogo.png")));
-            QLabel *ictLogoLabel = new QLabel();
-                    ictLogoLabel->setPixmap(QPixmap::fromImage(QImage(":/logo/logo/ictLogo.png")));
-    QVBoxLayout *leftLay = new QVBoxLayout;
-                 leftLay->addWidget(iitLogoLabel);
-                 leftLay->addWidget(brailleImageLabel);
-                 leftLay->addWidget(openListView);
-                 leftLay->addLayout(convrtLay);
-
-    //-------------------middle---------------
-    scrollArea->setWidget(imageLabel);
-
-    //QHBoxLayout *textImageBtnLay = new QHBoxLayout;
-                //textImageBtnLay->addSpacerItem(new QSpacerItem(1,1,QSizePolicy::Expanding,QSizePolicy::Fixed));
-                //textImageBtnLay->addWidget(//textBtn);
-                //textImageBtnLay->addWidget(//imageBtn);
-    QVBoxLayout *middleLay = new QVBoxLayout;
-                 middleLay->addWidget(scrollArea);
-                 //middleLay->addLayout(textImageBtnLay);
-    //--------------------right---------------
-    QVBoxLayout *rightLay = new QVBoxLayout;
-                rightLay->addWidget(ictLogoLabel);
-                rightLay->addWidget(brailleTextLabel);
-                rightLay->addWidget(resultListView);
-    //--------------------upper---------------
-    QHBoxLayout *upperLay = new QHBoxLayout;
-                 upperLay->addLayout(leftLay,1);
-                 upperLay->addLayout(middleLay,7);
-                 //upperLay->addWidget(resultListView,1);
-                 upperLay->addLayout(rightLay,1);
-
-    // ---------------belowLay---------------------
-
-    //-------------mainlay------------------------
-    QVBoxLayout *mainLay = new QVBoxLayout;
-                 mainLay->addLayout(upperLay);
-    QWidget *widget = new QWidget;
-            widget->setLayout(mainLay);
-    setCentralWidget(widget);
 }
 
 void MainWindow::showBanglaText()
 {
     if(m_textToShow!=nullptr)
     {
-           imageLabel->setMargin(50);
-           imageLabel->setAlignment(Qt::AlignTop);
-           imageLabel ->setText(m_textToShow);
-           imageLabel->resize(700,700);
+           ui->imageLabel->setMargin(50);
+           ui->imageLabel->setAlignment(Qt::AlignHCenter);
+           ui->imageLabel ->setText(m_textToShow);
+           ui->imageLabel->resize(1000,ui->imageLabel->sizeHint().height());
+           //ui->imageLabel->resize(1000,3000);
+           //qDebug()<<ui->imageLabel->size();
     }
 }
 
 void MainWindow::setImage()
 {
-    imageLabel->setMargin(0);
-    imageLabel->setPixmap(QPixmap::fromImage(m_imageToShow));
-    imageLabel->scaleImage(1);
+    ui->imageLabel->setMargin(0);
+    ui->imageLabel->setPixmap(QPixmap::fromImage(m_imageToShow));
+    ui->imageLabel->scaleImage(1);
+    //ui->imageLabel->resize(1000,1000);
+    //qDebug()<<ui->imageLabel->size();
 }
 
 void MainWindow::onCnvrtClick()
@@ -269,13 +200,18 @@ void MainWindow::onCnvrtClick()
 
     if(!shouldProceed()) return;
 
-    QModelIndexList midList =  openListView->selectedIndexes();
-    if(midList.empty()) return;
+    QModelIndexList midList =  ui->openListView->selectedIndexes();
+    if(midList.empty()) {
+        QMessageBox::information(this, tr("Information"),
+         tr("Please select some image first.\n"),
+         QMessageBox::Ok);
+        return;
+    }
     int startIdx= midList.at(0).row();
     int endIdx = startIdx+midList.count()-1;
     convertAndSave(m_openFileList,m_binImageList,startIdx,endIdx);
-    openListView->setCurrentIndex(QModelIndex());
-    
+    ui->openListView->setCurrentIndex(QModelIndex());
+
 }
 
 void MainWindow::onCnvrtAllClick()
@@ -284,13 +220,18 @@ void MainWindow::onCnvrtAllClick()
 
     if(m_openFileList.empty()) return;
     convertAndSave(m_openFileList,m_binImageList,0,m_openFileList.length()-1);
-    openListView->setCurrentIndex(QModelIndex());
+    ui->openListView->setCurrentIndex(QModelIndex());
 }
 
 void MainWindow::removeForOpenView()
 {
-    QModelIndexList midList =  openListView->selectedIndexes();
-    if(midList.empty()) return;
+    QModelIndexList midList =  ui->openListView->selectedIndexes();
+    if(midList.empty()) {
+        QMessageBox::information(this, tr("Information"),
+         tr("Please select some image first.\n"),
+         QMessageBox::Ok);
+        return;
+    }
     int result = QMessageBox::warning(this, tr("Removing"),
      tr("Are you sure to remove %1 items.\n").arg(midList.count()),
      QMessageBox::Yes | QMessageBox::Default,
@@ -305,14 +246,19 @@ void MainWindow::removeForOpenView()
         }
     }
     updateOpenListView();
-    openListView->setCurrentIndex(QModelIndex());
+    ui->openListView->setCurrentIndex(QModelIndex());
 }
 
 void MainWindow::removeForResultView()
 {
     if(isSaving) return;
-    QModelIndexList midList =  resultListView->selectedIndexes();
-    if(midList.empty()) return;
+    QModelIndexList midList =  ui->resultListView->selectedIndexes();
+    if(midList.empty()) {
+        QMessageBox::information(this, tr("Information"),
+         tr("Please select some file first.\n"),
+         QMessageBox::Ok);
+        return;
+    }
     int result = QMessageBox::warning(this, tr("Removing"),
      tr("Are you sure to remove %1 item.\n").arg(midList.count()),
      QMessageBox::Yes | QMessageBox::Default,
@@ -330,7 +276,7 @@ void MainWindow::removeForResultView()
         }
     }
     resultModel->setStringList(nameList);
-    resultListView->setCurrentIndex(QModelIndex());
+    ui->resultListView->setCurrentIndex(QModelIndex());
 }
 
 void MainWindow::ontextBtnClicked()
@@ -345,7 +291,7 @@ void MainWindow::onimageBtnClicked()
 
 void MainWindow::onOpenListViewItemClicked()
 {
-    QModelIndex modelIdx = openListView->currentIndex();
+    QModelIndex modelIdx = ui->openListView->currentIndex();
     int index = modelIdx.row();
     if(index>-1)
     {
@@ -361,15 +307,11 @@ void MainWindow::onOpenListViewItemClicked()
 
 void MainWindow::onResultListViewItemClicked()
 {
-    QModelIndex modelIdx = resultListView->currentIndex();
+    QModelIndex modelIdx = ui->resultListView->currentIndex();
     int index = modelIdx.row();
 
     if(index>-1)
     {
-        //textBtn->setStyleSheet("background-color: rgb(255,200,150);");
-        //imageBtn->setStyleSheet("background-color: rgb(150,255,200);");
-        //textBtn->setDisabled(false);
-        //imageBtn->setDisabled(false);
         m_textToShow = _banglaText.at(index);
         m_imageToShow = m_resultImagesList[index];
         showBanglaText();
@@ -387,14 +329,14 @@ void MainWindow::on_openFiles() // path not saved !
                              this,
                              "Select one or more files to open",
                              setting.value(DEFAULT_DIR_KEY).toString(),
-                             "Images (*.png *.xpm *.jpg)");
+                             "Images (*.png *.xpm *.jpg *.jpeg)");
     if(m_openFileList.empty()) return;
         QDir CurrentDir;
         setting.setValue(DEFAULT_DIR_KEY,CurrentDir.absoluteFilePath(m_openFileList[0]));
         m_currentImageDir = QFileInfo(m_openFileList[0]).dir();
     setting.endGroup();
 
-    imageLabel->clear();
+    ui->imageLabel->clear();
     m_binImageList.clear();
     mainImageToBinImage(m_openFileList);
     updateOpenListView();
@@ -433,8 +375,14 @@ void MainWindow::on_addFiles()
 void MainWindow::on_saveFiles()
 {
     isSaving = true;
-    QModelIndexList midList =  resultListView->selectedIndexes();
-    if(midList.empty()) {isSaving = false; return;}
+    QModelIndexList midList =  ui->resultListView->selectedIndexes();
+    if(midList.empty()) {
+        QMessageBox::information(this, tr("Information"),
+         tr("Please select some file first.\n"),
+         QMessageBox::Ok);
+        isSaving = false;
+        return;
+    }
     QString title;
     binaryFiles ? title = "Open Binary Files Directory" : title = "Open Text Files Directory";
     QString dir = QFileDialog::getExistingDirectory(this, title,
@@ -459,7 +407,7 @@ void MainWindow::on_saveFiles()
             else stream<<_binText.at(i);
         }
     }
-    resultListView->setCurrentIndex(QModelIndex());
+    ui->resultListView->setCurrentIndex(QModelIndex());
     isSaving = false;
 }
 
@@ -473,8 +421,14 @@ void MainWindow::on_saveBinFiles()
 void MainWindow::on_savePDFFiles()
 {
     isSaving = true;
-    QModelIndexList midList =  resultListView->selectedIndexes();
-    if(midList.empty()) {isSaving = false; return;}
+    QModelIndexList midList =  ui->resultListView->selectedIndexes();
+    if(midList.empty()) {
+        QMessageBox::information(this, tr("Information"),
+         tr("Please select some file first.\n"),
+         QMessageBox::Ok);
+        isSaving = false;
+        return;
+    }
     //------------------------------------------
     QString fileName = QFileDialog::getSaveFileName((QWidget* )0, "Export PDF", QString(), "*.pdf");
     if (QFileInfo(fileName).suffix().isEmpty()) { fileName.append(".pdf"); }
@@ -515,15 +469,22 @@ void MainWindow::on_savePDFFiles()
         if(i!=endIdx) printer.newPage();
     }
     painter.end();
-    resultListView->setCurrentIndex(QModelIndex());
+    ui->resultListView->setCurrentIndex(QModelIndex());
     isSaving = false;
 }
 
 void MainWindow::on_Print()
 {
     isSaving = true;
-    QModelIndexList midList =  resultListView->selectedIndexes();
-    if(midList.empty()) {isSaving = false; return;}
+    QModelIndexList midList =  ui->resultListView->selectedIndexes();
+
+    if(midList.empty()) {
+        QMessageBox::information(this, tr("Information"),
+         tr("Please select some file first.\n"),
+         QMessageBox::Ok);
+        isSaving = false;
+        return;
+    }
     //------------------------------------------
     QPrinter printer;
     printer.setPaperSize(QPrinter::A4);
@@ -556,7 +517,7 @@ void MainWindow::on_Print()
         if(i!=endIdx) printer.newPage();
     }
     painter.end();
-    resultListView->setCurrentIndex(QModelIndex());
+    ui->resultListView->setCurrentIndex(QModelIndex());
     isSaving = false;
 }
 
@@ -579,7 +540,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
         event->accept();
     }
 }
-/*
+
 bool MainWindow::event(QEvent *event)
 {
     if (event->type() == QEvent::KeyPress) {
@@ -594,15 +555,15 @@ bool MainWindow::event(QEvent *event)
         } else if(key == 83 && modifires == 67108864){ //ctrl + s
              on_saveFiles();
          } else if(key == 16777223 && modifires ==0){
-             bool v1 = openListView->selectedIndexes().empty();
-             bool v2 =resultListView->selectedIndexes().empty();
+             bool v1 = ui->openListView->selectedIndexes().empty();
+             bool v2 =ui->resultListView->selectedIndexes().empty();
              if(!v1 && v2) removeForOpenView();
              else if(v1 && !v2) removeForResultView();
          }
     }
     return QMainWindow::event(event);
 }
-*/
+
 bool MainWindow::shouldProceed()
 {
     if(progressWdgt.processing()){
@@ -627,8 +588,8 @@ void MainWindow::updateOpenListView()
     }
     //-------------
     model->setStringList(nameList);
-    openListView->setModel(model);
-    openListView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->openListView->setModel(model);
+    ui->openListView->setEditTriggers(QAbstractItemView::NoEditTriggers);
 }
 
 void MainWindow::loadBanglaText(QString resultTextFile)
@@ -658,8 +619,8 @@ void MainWindow::loadBanglaText(QString resultTextFile)
 
 bool MainWindow::mainImageToBinImage(QStringList &list)
 {
-     QProgressBar progress(openListView);
-     progress.setGeometry(0,openListView->height()/2,openListView->width(),20);
+     QProgressBar progress(ui->openListView);
+     progress.setGeometry(0,ui->openListView->height()/2,ui->openListView->width(),20);
      progress.show();
      progress.setRange(0, list.length());
     for(int i=0; i<list.length();i++)
@@ -674,35 +635,31 @@ bool MainWindow::mainImageToBinImage(QStringList &list)
 
 void MainWindow::convertAndSave(QStringList m_openFileList,QImageList m_binImageList, int startIdxList, int endIdxList) // i am sure that startindex and end index is valid
 {
-   QString resultDir = UtilFileAndDir::makeDirec(m_currentImageDir,"result");
-   QString binDir = UtilFileAndDir::makeDirec(resultDir,"binDataFiles"); //sub directory of result
+   //QString resultDir = UtilFileAndDir::makeDirec(m_currentImageDir,"result");
+   //QString binDir = UtilFileAndDir::makeDirec(resultDir,"binDataFiles"); //sub directory of result
    QImage image;
    int numberOfLineExpected = 27;//row/m_distBetCh.y();
    progressWdgt.setMaximum(numberOfLineExpected,endIdxList-startIdxList+1);
-   UtilImageProc::setBrailleProperty(m_distBetDot,m_distBetCh,m_minDotWidth, m_maxDotWidth,m_errDot,m_errCh);
+
+   UtilImageProc::setBrailleProperty(m_distBetDot,m_distBetCh,m_minDotWidth, m_maxDotWidth,m_errDot,m_errCh,false,ui->actionIsDebug->isChecked());
    for(int index=startIdxList;index<=endIdxList;index++){
 
        QStringList binData;
        progressWdgt.setText("Processing: "+QFileInfo(m_openFileList.at(index)).fileName());
        image = m_binImageList.at(index);
-       QPoint strtingPt = QPoint(20,20);
+       QPoint strtingPt = QPoint(0,0);
 
-       //QTime global;
-       //global.start();
        for(int i=1;i<=numberOfLineExpected;i++){
-
-           //QTime time;
-           //time.start();
+           UtilImageProc::findingChar = true;
            DataBundle dataBundle = UtilImageProc::findChar(image, strtingPt);
-           //cout<<time.elapsed()/1000.0<<" Find "<<i<<endl;
+           UtilImageProc::findingChar = false;
+
            if(progressWdgt.cancelled()) goto endFunc;
-           strtingPt = QPoint(20,dataBundle.charCenter.y()+m_distBetCh.y()-m_distBetDot.y()-2);
+           strtingPt = QPoint(strtingPt.x(),dataBundle.charCenter.y()+m_distBetCh.y()-m_distBetDot.y()-5);
+            //qDebug()<<strtingPt.y()<<" "<<dataBundle.charCenter<<" "<<dataBundle.isValidDot<<endl;
            if(dataBundle.isValidDot){
-               //QTime time;
-               //time.start();
-               dataBundle = UtilImageProc::readLine(image,dataBundle.charCenter);
+               dataBundle = UtilImageProc::readLine(dataBundle.image,dataBundle.charCenter);
                if(progressWdgt.cancelled()) goto endFunc;
-               //cout<<time.elapsed()/1000.0<<" ReadLine "<<i<<endl;
                if(!dataBundle.charList.empty()){
                    binData.append(dataBundle.charList);
                    binData.append("\n");
@@ -710,15 +667,17 @@ void MainWindow::convertAndSave(QStringList m_openFileList,QImageList m_binImage
                image = dataBundle.image;
            }
            else{
+               image = dataBundle.image;
                progressWdgt.setValue(index-startIdxList+1,numberOfLineExpected);
                break;
            }
 
            progressWdgt.setValue(index-startIdxList+1,i);
        }
-      //cout<<global.elapsed()/1000.0<<" Global "<<endl;
+
        if(progressWdgt.cancelled()) goto endFunc;
-       bool savedFile = saveBinBrille(resultDir,QFileInfo(m_openFileList.at(index)).fileName(),binData);
+
+       bool savedFile = saveBinBrille(QFileInfo(m_openFileList.at(index)).fileName(),binData);
        if(savedFile){
            nameList.append(QFileInfo(m_openFileList.at(index)).fileName());
            resultModel->setStringList(nameList);
@@ -727,24 +686,22 @@ void MainWindow::convertAndSave(QStringList m_openFileList,QImageList m_binImage
        }
 
    }
-endFunc:
-   QDir(resultDir).removeRecursively();
+endFunc:;
+   //QDir(resultDir).removeRecursively();
 }
 
-bool MainWindow::saveBinBrille(QString dir, QString saveFileName,QStringList binData)
+bool MainWindow::saveBinBrille(QString saveFileName,QStringList binData)
 {
 
     QRegExp rx("([a-zA-Z0-9_ ])+");
     if(rx.indexIn(saveFileName)!=-1)
         saveFileName = rx.capturedTexts().at(0);
     saveFileName.append(".txt");
-
-    //QString tempFile=dir+"/"+"Data.txt";
-    QString tempFile=dir+"/"+"binDataFiles"+"/"+saveFileName;
-    saveFileName = dir+"/"+saveFileName;
-    //qDebug()<<saveFileName<<" "<<tempFile;
+    //saveFileName = dir+"/"+saveFileName;
+    //QString tempFile=dir+"/"+"binDataFiles"+"/"+saveFileName;
+    QString tempFile="bin.txt";
     QFile file( tempFile );
-    if ( file.open(QIODevice::ReadWrite | QIODevice::Text) ) // overriding every time
+    if ( file.open(QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text) ) // overriding every time
     {
         QTextStream stream( &file );
         for(auto &it:binData)
@@ -754,23 +711,21 @@ bool MainWindow::saveBinBrille(QString dir, QString saveFileName,QStringList bin
         }
 
     }
+
     file.close();
     if(file.open(QIODevice::ReadOnly | QIODevice::Text))
         _binText.append(file.readAll());
 
  // generete bangla by sadi from tempfile and save that by savefilename
-
+///*    //toggle this to save file when crash
     BrailleToText *brailleToText;
     BrailleToBangla brailleToBangla;
     brailleToText = &brailleToBangla;
     string inputFile = tempFile.toStdString();
     string outText = brailleToText->getText(inputFile, brailleToText);
-    ofstream oFile(saveFileName.toStdString());
-    oFile<<outText;
-    oFile.close();
-    //m_resultFileList.append(saveFileName);
-    //loadBanglaText(saveFileName); //image12 is not working
-    _banglaText.append(QString::fromStdString(outText));
 
+    _banglaText.append(QString::fromStdString(outText));
+//*/
     return true; // true if successfully saved the file
 }
+
