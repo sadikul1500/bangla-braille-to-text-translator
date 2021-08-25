@@ -89,11 +89,11 @@ void MainWindow::readDefaultMemberVariable()
     m_distBetDot = QPoint(28,32);
     m_distBetCh = QPoint(76,126);
     //qDebug()<<m_minDotWidth<<" "<<m_maxDotWidth<<" "<<m_errDot<<" "<<m_errCh<<" "<<m_distBetDot<<" "<<m_distBetCh;
-    m_minDotWidth = 5;
-    m_maxDotWidth = 20;
-    m_errDot = QPoint(8,8);
-    m_distBetDot = QPoint(25,25);
-    m_distBetCh = QPoint(62,95);
+    //m_minDotWidth = 5;
+    //m_maxDotWidth = 20;
+    //m_errDot = QPoint(8,8);
+    //m_distBetDot = QPoint(25,25);
+    //m_distBetCh = QPoint(62,95);
 
 }
 
