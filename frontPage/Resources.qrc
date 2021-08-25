@@ -1,0 +1,11 @@
+<RCC>
+    <qresource prefix="/">
+        <file>logo/background1.jpg</file>
+        <file>logo/ictLogo.jpg</file>
+        <file>logo/iitLogo.jpg</file>
+        <file>logo/process.png</file>
+        <file>logo/readingBackground.png</file>
+        <file>logo/Start.png</file>
+        <file>logo/towidgetBackground.png</file>
+    </qresource>
+</RCC>
