@@ -6,6 +6,10 @@
 #include <QMainWindow>
 #include <QDir>
 #include "olistview.h"
+#include "lineidentifire.h"
+#include "linereader.h"
+#include "preprocessor.h"
+#include "scalevaraibles.h"
 #include <qstringlistmodel.h>
 #include <qmessagebox.h>
 #include "progressWidget/progresswidget.h"
@@ -25,7 +29,6 @@ public:
     ~MainWindow();
 
     void readMemberVariable();
-    void readDefaultMemberVariable();
     void initMemWidget();
     void connectWidget();
     void showBanglaText();
@@ -85,8 +88,8 @@ public:
     QImage m_imageToShow;
     QImageList m_resultImagesList,m_binImageList;
     QString m_textToShow;
-    QPoint m_errDot,m_errCh,m_distBetDot,m_distBetCh;
-    int m_minDotWidth,m_maxDotWidth;
+    //QPoint m_errDot,m_errCh,m_distBetDot,m_distBetCh;
+    //int m_minDotWidth,m_maxDotWidth;
     QDir m_currentImageDir;
     bool isSaving = false,binaryFiles=false;
     //------------------model-------------------------
@@ -95,5 +98,11 @@ public:
     // --------------action for context menu------------
     QAction *actionselectAllForOpen,*actionselectAllForResult,*actionRemoveFileForResult,*actionSaveFiles;
     QAction *exportAsPdfForResult,*actionPrint;
+
+    // image processor
+    LineIdentifire lineIdentifire;
+    Linereader lineReader;
+    PreProcessor preProcessor;
+    ScaleVaraibles scaleVar;
 };
 #endif // MAINWINDOW_H

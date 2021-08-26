@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>804</width>
-    <height>600</height>
+    <height>555</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -221,8 +221,8 @@ background-image: url(:/logo/background1.jpg);
           <widget class="QWidget" name="scrollAreaWidgetContents">
            <property name="geometry">
             <rect>
-             <x>2</x>
-             <y>16</y>
+             <x>0</x>
+             <y>0</y>
              <width>248</width>
              <height>408</height>
             </rect>
@@ -386,7 +386,6 @@ margin-top:0px;</string>
      <string>Settings</string>
     </property>
     <addaction name="actionEnvironmenVariable"/>
-    <addaction name="actionDebug"/>
     <addaction name="actionIsDebug"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
@@ -431,7 +430,7 @@ margin-top:0px;</string>
   </action>
   <action name="actionEnvironmenVariable">
    <property name="text">
-    <string>Environment</string>
+    <string>Tools</string>
    </property>
   </action>
   <action name="actionDebug">

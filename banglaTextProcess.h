@@ -173,7 +173,8 @@ class BanglaTextProcess
                 }
 
                 else
-                    return letters[*i];
+//                    return letters[*i];
+                    return "";
             }
 
             else if(*i+1 < *length && bangla.getOperator().find(letters[*i]+letters[*i+1]) != bangla.getOperator().end())
@@ -186,7 +187,8 @@ class BanglaTextProcess
             else
 			{
                 //cout<<"digit not found\n";
-				return letters[*i];
+//				return letters[*i];
+                return "";
 			}
         }
 

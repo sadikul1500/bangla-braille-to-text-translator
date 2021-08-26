@@ -1,5 +1,5 @@
 ﻿#include "utilimageprocfordialog.h"
-#include "ulbrofdotv4.h"
+#include "dotBoundaryFinder.h"
 #include <QApplication>
 
 #include <QDebug>
@@ -74,9 +74,9 @@ QImage utilImageProcForDiaLog::markByULBR(QImage img, QRgb rgb, QList<int> ULBR)
 
 DataBundle utilImageProcForDiaLog::markDotByPoint(QImage image, QPoint point, int minWidth, int maxWidth)
 { // assuming point is a black dot
-    ULBRofDotV4 ulbrObjct(image);
+    DotBoundaryFinder ulbrObjct(image);
     qApp->processEvents();
-    QList<int> list = ulbrObjct.findULBR(point.x(),point.y());
+    QList<int> list = ulbrObjct.findBoundary(point.x(),point.y());
     //qDebug()<<"area: "<<ulbrObjct.getArea()<<endl;
     qApp->processEvents();
     int x = (list[1]+list[3])/2;
@@ -290,8 +290,8 @@ DataBundle utilImageProcForDiaLog::getBrailleChPosCenter(QImage image, QPoint ce
 DataBundle utilImageProcForDiaLog::findCenter(QImage image, QPoint blackPoint, QPoint distBetDot, int minWidth, int maxWidth, QPoint errToFindDot)
 {
     QImage tempImage = image;
-    ULBRofDotV4 ulbrObjct(tempImage);
-    QList<int> list = ulbrObjct.findULBR(blackPoint.x(),blackPoint.y());
+    DotBoundaryFinder ulbrObjct(tempImage);
+    QList<int> list = ulbrObjct.findBoundary(blackPoint.x(),blackPoint.y());
     QPoint cntrBlckDot((list[1]+list[3])/2,(list[0]+list[2])/2);
     //qDebug()<<cntrBlckDot<<endl;
             //--------------

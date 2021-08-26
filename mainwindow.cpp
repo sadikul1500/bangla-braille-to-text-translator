@@ -2,7 +2,7 @@
 #include "ui_mainwindow.h"
 
 #include "utilfileanddir.h"
-#include "utilimageproc.h"
+//#include "imagePreProcessor.h"
 #include <QDebug>
 
 #include <QAbstractItemView>
@@ -13,11 +13,7 @@
 #include <QPrinter>
 #include <QProgressDialog>
 #include <QSettings>
-//#include <QSplitter>
 #include <QStringListModel>
-//#include <QTemporaryFile>
-//#include <QThread>
-//#include <QTime>
 #include <qevent.h>
 #include <qfiledialog.h>
 #include <qfontdatabase.h>
@@ -35,7 +31,6 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     setWindowTitle("Braille");
     //readMemberVariable();
-    readDefaultMemberVariable();
     createActions();
     initMemWidget();
     connectWidget();
@@ -65,36 +60,18 @@ void MainWindow::on_DebugAction_triggered()
 
 void MainWindow::readMemberVariable()
 {
-    QSettings setting("mySoft","braille");
-    setting.beginGroup("trainedVariable");
-        m_minDotWidth = setting.value("minDotWidth",5).toInt();
-        m_maxDotWidth = setting.value("maxDotWidth",27).toInt();
-        //qDebug()<<m_minDotWidth<<m_maxDotWidth<<endl;
-        m_errDot = setting.value("errToFindDot",QPoint(5,5)).toPoint();
-        m_errCh = setting.value("errToFindChar",QPoint(1,1)).toPoint();
-        //qDebug()<<"m_errDot: "<<m_errDot<<" m_minDotWidth: "<<m_minDotWidth;
-        m_distBetDot = setting.value("distBetDot",QPoint(30,27)).toPoint();
-        m_distBetCh = setting.value("distBetChar",QPoint(76,253)).toPoint();
-//        qDebug()<<m_minDotWidth<<" "<<m_maxDotWidth<<" "<<m_errDot<<" "<<m_errCh<<" "<<m_distBetDot<<" "<<m_distBetCh;
-        setting.endGroup();
-}
-
-void MainWindow::readDefaultMemberVariable()
-{
-    m_minDotWidth = 8;
-    m_maxDotWidth = 27;
-    m_errDot = QPoint(10,10);
-
-    m_errCh = QPoint(1,1);
-    m_distBetDot = QPoint(28,32);
-    m_distBetCh = QPoint(76,126);
-    //qDebug()<<m_minDotWidth<<" "<<m_maxDotWidth<<" "<<m_errDot<<" "<<m_errCh<<" "<<m_distBetDot<<" "<<m_distBetCh;
-    //m_minDotWidth = 5;
-    //m_maxDotWidth = 20;
-    //m_errDot = QPoint(8,8);
-    //m_distBetDot = QPoint(25,25);
-    //m_distBetCh = QPoint(62,95);
-
+//    QSettings setting("mySoft","braille");
+//    setting.beginGroup("trainedVariable");
+//        m_minDotWidth = setting.value("minDotWidth",5).toInt();
+//        m_maxDotWidth = setting.value("maxDotWidth",27).toInt();
+//        //qDebug()<<m_minDotWidth<<m_maxDotWidth<<endl;
+//        m_errDot = setting.value("errToFindDot",QPoint(5,5)).toPoint();
+//        m_errCh = setting.value("errToFindChar",QPoint(1,1)).toPoint();
+//        //qDebug()<<"m_errDot: "<<m_errDot<<" m_minDotWidth: "<<m_minDotWidth;
+//        m_distBetDot = setting.value("distBetDot",QPoint(30,27)).toPoint();
+//        m_distBetCh = setting.value("distBetChar",QPoint(76,253)).toPoint();
+////        qDebug()<<m_minDotWidth<<" "<<m_maxDotWidth<<" "<<m_errDot<<" "<<m_errCh<<" "<<m_distBetDot<<" "<<m_distBetCh;
+//        setting.endGroup();
 }
 
 void MainWindow::createActions()
@@ -121,22 +98,14 @@ void MainWindow::initMemWidget()
         ui->openListView->addAction(actionselectAllForOpen);
         ui->openListView->addAction(ui->actionRemoveFileForOpen);
 
-        //ui->resultListView = new OListView;
         ui->resultListView->addAction(actionselectAllForResult);
         ui->resultListView->addAction(actionSaveFiles);
         ui->resultListView->addAction(actionRemoveFileForResult);
         ui->resultListView->addAction(exportAsPdfForResult);
         ui->resultListView->addAction(actionPrint);
-        //scrollArea->setStyleSheet("background-color: rgb(128,200,200);");
         resultModel = new QStringListModel(this);
         ui->resultListView->setModel(resultModel);
         ui->resultListView->setEditTriggers(QAbstractItemView::NoEditTriggers);
-
-    // QPushButton
-    //ui->convrt->setSizePolicy(QSizePolicy::Maximum,QSizePolicy::Maximum);
-    //ui->convrtAll->setSizePolicy(QSizePolicy::Maximum,QSizePolicy::Maximum);
-    //ui->convrt->setStyleSheet("background-color: rgb(100,150,100);");
-    //ui->convrtAll->setStyleSheet("background-color: rgb(100,200,100);");
 }
 
 void MainWindow::connectWidget()
@@ -295,10 +264,6 @@ void MainWindow::onOpenListViewItemClicked()
     int index = modelIdx.row();
     if(index>-1)
     {
-        //textBtn->setStyleSheet("background-color: rgb(112,180,213);");
-        //imageBtn->setStyleSheet("background-color: rgb(112,180,213);");
-        //textBtn->setDisabled(true);
-        //imageBtn->setDisabled(true);
         m_imageToShow = m_binImageList.at(index);
         m_textToShow = nullptr;
         setImage();
@@ -628,7 +593,8 @@ bool MainWindow::mainImageToBinImage(QStringList &list)
         //progress.setLabelText(tr("Loading %1").arg(QFileInfo(m_openFileList.at(i)).fileName()));
         /////progress.setText(tr("Loading %1").arg(QFileInfo(m_openFileList.at(i)).fileName()));
         progress.setValue(i);
-        m_binImageList.append(UtilImageProc::mainImageToBinImage(list.at(i)));
+        QString str = list.at(i);
+        m_binImageList.append(preProcessor.mainImageToBinImage(str));
     }
     return true;
 }
@@ -641,7 +607,7 @@ void MainWindow::convertAndSave(QStringList m_openFileList,QImageList m_binImage
    int numberOfLineExpected = 27;//row/m_distBetCh.y();
    progressWdgt.setMaximum(numberOfLineExpected,endIdxList-startIdxList+1);
 
-   UtilImageProc::setBrailleProperty(m_distBetDot,m_distBetCh,m_minDotWidth, m_maxDotWidth,m_errDot,m_errCh,false,ui->actionIsDebug->isChecked());
+   scaleVar._isDebug = ui->actionIsDebug->isChecked();
    for(int index=startIdxList;index<=endIdxList;index++){
 
        QStringList binData;
@@ -650,15 +616,15 @@ void MainWindow::convertAndSave(QStringList m_openFileList,QImageList m_binImage
        QPoint strtingPt = QPoint(0,0);
 
        for(int i=1;i<=numberOfLineExpected;i++){
-           UtilImageProc::findingChar = true;
-           DataBundle dataBundle = UtilImageProc::findChar(image, strtingPt);
-           UtilImageProc::findingChar = false;
+//           ImagePreProcessor::findingChar = true;
+           DataBundle dataBundle = lineIdentifire.getNextChar(image, strtingPt);
+//           ImagePreProcessor::findingChar = false;
 
            if(progressWdgt.cancelled()) goto endFunc;
-           strtingPt = QPoint(strtingPt.x(),dataBundle.charCenter.y()+m_distBetCh.y()-m_distBetDot.y()-5);
+           strtingPt = QPoint(strtingPt.x(),dataBundle.charCenter.y()+scaleVar._distBetCh.y()-scaleVar._distBetDot.y()-5);
             //qDebug()<<strtingPt.y()<<" "<<dataBundle.charCenter<<" "<<dataBundle.isValidDot<<endl;
            if(dataBundle.isValidDot){
-               dataBundle = UtilImageProc::readLine(dataBundle.image,dataBundle.charCenter);
+               dataBundle = lineReader.readLine(dataBundle.image,dataBundle.charCenter);
                if(progressWdgt.cancelled()) goto endFunc;
                if(!dataBundle.charList.empty()){
                    binData.append(dataBundle.charList);

@@ -26,27 +26,32 @@ LIBS += C:\OpenCV\opencv\release\bin\libopencv_calib3d452.dll
 LIBS += C:\OpenCV\opencv\release\bin\libopencv_objdetect452.dll
 
 SOURCES += \
+    charreader.cpp \
     databundle.cpp \
+    dotBoundaryFinder.cpp \
+    dotprocessor.cpp \
     frontPage/frontpage.cpp \
     frontPage/startlabel.cpp \
     imagelabel.cpp \
+    lineidentifire.cpp \
+    linereader.cpp \
     main.cpp \
     dialog.cpp \
     mainwindow.cpp \
     olistview.cpp \
+    preprocessor.cpp \
     progressWidget/progresswidget.cpp \
     charDebugWidget/chardebug.cpp \
-    ulbrofdot.cpp \
-    ulbrofdotv2.cpp \
-    ulbrofdotv3.cpp \
-    ulbrofdotv4.cpp \
+    scalevaraibles.cpp \
     utilfileanddir.cpp \
-    utilimageproc.cpp \
     utilimageprocfordialog.cpp
 
 HEADERS += \
     CommonSymbols.h \
     bangla.h \
+    charreader.h \
+    dotBoundaryFinder.h \
+    dotprocessor.h \
     english.h \
     banglaTextProcess.h \
     brailleToBangla.h \
@@ -57,17 +62,16 @@ HEADERS += \
     frontPage/frontpage.h \
     frontPage/startlabel.h \
     imagelabel.h \
+    lineidentifire.h \
+    linereader.h \
     mainwindow.h \
     olistview.h \
+    preprocessor.h \
     progressWidget/progresswidget.h \
     charDebugWidget/chardebug.h \
+    scalevaraibles.h \
     splitText.h \
-    ulbrofdot.h \
-    ulbrofdotv2.h \
-    ulbrofdotv3.h \
-    ulbrofdotv4.h \
     utilfileanddir.h \
-    utilimageproc.h \
     utilimageprocfordialog.h
 
 FORMS += \

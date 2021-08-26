@@ -1,6 +1,6 @@
 ﻿#include "imagelabel.h"
-#include "ulbrofdot.h"
-#include "utilimageproc.h"
+//#include "ulbrofdot.h"
+//#include "imagePreProcessor.h"
 
 #include <QFontDatabase>
 #include <QMouseEvent>

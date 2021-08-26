@@ -1,0 +1,22 @@
+#ifndef LINEREADER_H
+#define LINEREADER_H
+
+#include "charreader.h"
+#include "databundle.h"
+#include "scalevaraibles.h"
+
+class Linereader : public ScaleVaraibles
+{
+public:
+    Linereader();
+    DataBundle readLine(QImage image, QPoint cnterCh);
+
+
+private:
+    DataBundle readLineRightPart(QImage image, QPoint cnterCh);
+    DataBundle readLineLeftPart(QImage image, QPoint cnterCh);
+
+    CharReader charReader;
+};
+
+#endif // LINEREADER_H
